@@ -1,0 +1,20 @@
+INFO:     Started server process [77414]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:55393 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55393 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55419 - "POST /run_task HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55425 - "POST /run_task HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55427 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55427 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "POST /run_task HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55449 - "POST /run_task HTTP/1.1" 422 Unprocessable Entity
+  📥 [redis] Enqueued LOW/LOW task for auditor_final: d014a57a-e61b-4f7b-99da-544e5d6ce0cb
+INFO:     127.0.0.1:55466 - "POST /run_task HTTP/1.1" 200 OK
+  📥 [redis] Enqueued LOW/LOW task for auditor_final: 1f55c57a-b808-459c-9966-096a2d06cbfd
+INFO:     127.0.0.1:55473 - "POST /run_task HTTP/1.1" 200 OK
+  📥 [redis] Enqueued LOW/LOW task for auditor_final: 1c20ca43-fc34-4c15-bfe1-d2feebc0a844
+INFO:     127.0.0.1:55473 - "POST /run_task HTTP/1.1" 200 OK
+  📥 [redis] Enqueued LOW/LOW task for auditor_final: 08f495b3-158e-449b-a17e-50659248525b
+INFO:     127.0.0.1:55473 - "POST /run_task HTTP/1.1" 200 OK

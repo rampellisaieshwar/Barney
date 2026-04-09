@@ -1,0 +1,702 @@
+[
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 28",
+    "timestamp": 1775583662287743000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 29",
+    "timestamp": 1775583662288894000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 30",
+    "timestamp": 1775583662290019000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 31",
+    "timestamp": 1775583662291209000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 32",
+    "timestamp": 1775583662292632000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 33",
+    "timestamp": 1775583662294456000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 34",
+    "timestamp": 1775583662295665000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 35",
+    "timestamp": 1775583662296854000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 36",
+    "timestamp": 1775583662298016000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 37",
+    "timestamp": 1775583662299209000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 38",
+    "timestamp": 1775583662300480000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 39",
+    "timestamp": 1775583662301606000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 40",
+    "timestamp": 1775583662302800000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 41",
+    "timestamp": 1775583662304055000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 42",
+    "timestamp": 1775583662305382000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 43",
+    "timestamp": 1775583662306907000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 44",
+    "timestamp": 1775583662308260000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 45",
+    "timestamp": 1775583662309818000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 46",
+    "timestamp": 1775583662311372000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 47",
+    "timestamp": 1775583662312788000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 48",
+    "timestamp": 1775583662314239000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 49",
+    "timestamp": 1775583662315744000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_COMPRESSION",
+    "size": 0,
+    "intent": "Pruning low-value data to prevent noise explosion",
+    "timestamp": 1775583662317989000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 50",
+    "timestamp": 1775583662318716000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 51",
+    "timestamp": 1775583662319957000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 52",
+    "timestamp": 1775583662321245000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 53",
+    "timestamp": 1775583662322543000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 54",
+    "timestamp": 1775583662323799000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 22,
+    "intent": "Persisting verified insight: Task 0",
+    "timestamp": 1775583683399598000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 22,
+    "intent": "Persisting verified insight: Task 1",
+    "timestamp": 1775583683400667000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 22,
+    "intent": "Persisting verified insight: Task 2",
+    "timestamp": 1775583683401582000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 22,
+    "intent": "Persisting verified insight: Task 3",
+    "timestamp": 1775583683402535000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 22,
+    "intent": "Persisting verified insight: Task 4",
+    "timestamp": 1775583683403473000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 22,
+    "intent": "Persisting verified insight: Task 5",
+    "timestamp": 1775583683404628000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 22,
+    "intent": "Persisting verified insight: Task 6",
+    "timestamp": 1775583683405729000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 22,
+    "intent": "Persisting verified insight: Task 7",
+    "timestamp": 1775583683406804000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 22,
+    "intent": "Persisting verified insight: Task 8",
+    "timestamp": 1775583683407928000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 22,
+    "intent": "Persisting verified insight: Task 9",
+    "timestamp": 1775583683409094000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 10",
+    "timestamp": 1775583683410399000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 11",
+    "timestamp": 1775583683411721000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 12",
+    "timestamp": 1775583683413044000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 13",
+    "timestamp": 1775583683414237000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 14",
+    "timestamp": 1775583683415600000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 15",
+    "timestamp": 1775583683417056000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 16",
+    "timestamp": 1775583683418477000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 17",
+    "timestamp": 1775583683419790000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 18",
+    "timestamp": 1775583683421790000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 19",
+    "timestamp": 1775583683424004000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 20",
+    "timestamp": 1775583683425341000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 21",
+    "timestamp": 1775583683426904000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 22",
+    "timestamp": 1775583683428368000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 23",
+    "timestamp": 1775583683429742000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 24",
+    "timestamp": 1775583683431107000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 25",
+    "timestamp": 1775583683432512000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 26",
+    "timestamp": 1775583683433861000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 27",
+    "timestamp": 1775583683435181000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 28",
+    "timestamp": 1775583683436574000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 29",
+    "timestamp": 1775583683438053000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 30",
+    "timestamp": 1775583683439530000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 31",
+    "timestamp": 1775583683441015000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 32",
+    "timestamp": 1775583683442413000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 33",
+    "timestamp": 1775583683444062000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 34",
+    "timestamp": 1775583683445563000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 35",
+    "timestamp": 1775583683447002000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 36",
+    "timestamp": 1775583683448439000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 37",
+    "timestamp": 1775583683449944000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 38",
+    "timestamp": 1775583683451563000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 39",
+    "timestamp": 1775583683453137000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 40",
+    "timestamp": 1775583683454744000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 41",
+    "timestamp": 1775583683456430000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 42",
+    "timestamp": 1775583683458012000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 43",
+    "timestamp": 1775583683459661000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 44",
+    "timestamp": 1775583683461411000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 45",
+    "timestamp": 1775583683463065000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 46",
+    "timestamp": 1775583683464897000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 47",
+    "timestamp": 1775583683466505000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 48",
+    "timestamp": 1775583683468268000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 49",
+    "timestamp": 1775583683469911000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_COMPRESSION",
+    "size": 0,
+    "intent": "Pruning low-value data to prevent noise explosion",
+    "timestamp": 1775583683472210000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 50",
+    "timestamp": 1775583683473067000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 51",
+    "timestamp": 1775583683474423000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 52",
+    "timestamp": 1775583683475837000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 53",
+    "timestamp": 1775583683477313000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 23,
+    "intent": "Persisting verified insight: Task 54",
+    "timestamp": 1775583683478882000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 303,
+    "intent": "Persisting verified insight: Explain why quantum entanglement is weird",
+    "timestamp": 1775583908488680000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 324,
+    "intent": "Persisting verified insight: Briefly explain the main difference between Transformers and CNNs",
+    "timestamp": 1775584643073510000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 364,
+    "intent": "Persisting verified insight: Find the current population of Tokyo in 2026",
+    "timestamp": 1775584647458486000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 453,
+    "intent": "Persisting verified insight: Find the current population of Tokyo in 2026",
+    "timestamp": 1775584652408744000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: Briefly explain the main difference between Transformers and CNNs",
+    "timestamp": 1775584727520858000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 253,
+    "intent": "Persisting verified insight: What is 2+2?",
+    "timestamp": 1775622547076436000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 297,
+    "intent": "Persisting verified insight: Hello Barney",
+    "timestamp": 1775649345838906000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 372,
+    "intent": "Persisting verified insight: Hello Barney",
+    "timestamp": 1775649417451062000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 438,
+    "intent": "Persisting verified insight: Test1",
+    "timestamp": 1775650004124270000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 347,
+    "intent": "Persisting verified insight: Test1",
+    "timestamp": 1775650082575342000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 377,
+    "intent": "Persisting verified insight: Spam Task",
+    "timestamp": 1775650255377342000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 327,
+    "intent": "Persisting verified insight: Spam Task",
+    "timestamp": 1775650334279278000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 398,
+    "intent": "Persisting verified insight: Spam Task",
+    "timestamp": 1775650499485119000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 287,
+    "intent": "Persisting verified insight: What is 15 * 12?",
+    "timestamp": 1775666257209819000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 29,
+    "intent": "Persisting verified insight: What is 15 * 12?",
+    "timestamp": 1775666315436305000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 137,
+    "intent": "Persisting verified insight: What is 15 * 12?",
+    "timestamp": 1775666377666118000
+  }
+]

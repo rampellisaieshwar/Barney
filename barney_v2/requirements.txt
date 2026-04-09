@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+redis
+pydantic
+python-dotenv
+groq
+streamlit
+requests

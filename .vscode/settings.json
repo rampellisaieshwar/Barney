@@ -1,0 +1,6 @@
+{
+  "python.analysis.extraPaths": ["/Users/saieshwarrampelli/Downloads/Barney/meta_agent_system"],
+  "python.defaultInterpreterPath": "/Users/saieshwarrampelli/Downloads/Barney/meta_agent_system/venv/bin/python",
+  "python.languageServer": "Jedi",
+  "python.terminal.activateEnvInCurrentTerminal": true
+}

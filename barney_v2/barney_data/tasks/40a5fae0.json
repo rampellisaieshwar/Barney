@@ -1,0 +1,19 @@
+{
+  "task_id": "40a5fae0",
+  "task": "Explain dark matter",
+  "plan": [],
+  "current_step_index": 0,
+  "replan_counter": 0,
+  "status": "BRAIN_DEAD",
+  "history": [],
+  "history_text": "",
+  "constraints": {},
+  "logs": [],
+  "result": "Brain disconnected: Error code: 401 - {'error': {'message': 'Invalid API Key', 'type': 'invalid_request_error', 'code': 'invalid_api_key'}}",
+  "risk_scores": {},
+  "cumulative_risk": 0.0,
+  "wait_start_time": 0.0,
+  "completed_step_ids": [],
+  "strategy_type": "explore",
+  "strategy_info": {}
+}

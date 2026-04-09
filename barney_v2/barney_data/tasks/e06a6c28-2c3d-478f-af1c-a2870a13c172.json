@@ -1,0 +1,19 @@
+{
+  "task_id": "e06a6c28-2c3d-478f-af1c-a2870a13c172",
+  "task": "Hello Barney",
+  "plan": [],
+  "current_step_index": 0,
+  "replan_counter": 0,
+  "status": "BRAIN_DEAD",
+  "history": [],
+  "history_text": "",
+  "constraints": {},
+  "logs": [],
+  "result": "Brain disconnected: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.1-8b-instant` in organization `org_01kkkqak5cfen8m4b35ewewxpw` service tier `on_demand` on tokens per minute (TPM): Limit 6000, Used 2366, Requested 4491. Please try again in 8.57s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+  "risk_scores": {},
+  "cumulative_risk": 0.0,
+  "wait_start_time": 0.0,
+  "completed_step_ids": [],
+  "strategy_type": "explore",
+  "strategy_info": {}
+}
