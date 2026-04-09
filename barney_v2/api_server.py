@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import uuid
@@ -12,6 +13,15 @@ from redis_client import (
 )
 
 app = FastAPI(title="Barney v2 Production API", version="1.0.1")
+
+# Enable CORS for frontend communication
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class TaskRequest(BaseModel):
     user_id: str # Required in Phase 29
