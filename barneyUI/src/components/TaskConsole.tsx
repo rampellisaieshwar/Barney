@@ -36,6 +36,7 @@ export const TaskConsole: React.FC<TaskConsoleProps> = ({ theme, onUpgradeClick 
   const [isProcessing, setIsProcessing] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: string, steps?: PlanStep[] }[]>([]);
   const [currentSteps, setCurrentSteps] = useState<PlanStep[]>([]);
+  const [isDevMode, setIsDevMode] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -56,14 +57,18 @@ export const TaskConsole: React.FC<TaskConsoleProps> = ({ theme, onUpgradeClick 
 
     try {
       const steps: PlanStep[] = [];
+      let finalAnswer = "";
       for await (const step of api.streamTask(userMsg)) {
+        if (step.title === 'Final Answer') {
+          finalAnswer = step.description;
+        }
         steps.push(step);
         setCurrentSteps([...steps]);
       }
       
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: "Task execution plan generated and processed. High-risk steps were flagged for governance review.",
+        content: finalAnswer || "I was unable to determine a final answer for this request.",
         steps: [...steps]
       }]);
     } catch (error) {
@@ -126,8 +131,16 @@ export const TaskConsole: React.FC<TaskConsoleProps> = ({ theme, onUpgradeClick 
             <Zap className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
             Upgrade
           </button>
-          <button className="opacity-40 hover:opacity-100 transition-opacity">
-            <HelpCircle className="w-5 h-5" />
+          <button 
+            onClick={() => setIsDevMode(!isDevMode)}
+            className={cn("px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border", 
+              isDevMode 
+                ? "bg-purple-500/10 text-purple-400 border-purple-500/20" 
+                : "opacity-40 hover:opacity-100 border-transparent text-gray-500 dark:text-gray-400"
+            )}
+          >
+            <Code className="w-3.5 h-3.5" />
+            Dev Mode
           </button>
           <button className="opacity-40 hover:opacity-100 transition-opacity">
             <Gift className="w-5 h-5" />
@@ -224,8 +237,11 @@ export const TaskConsole: React.FC<TaskConsoleProps> = ({ theme, onUpgradeClick 
                       )}
                       <div className="whitespace-pre-wrap text-base font-medium opacity-90">{msg.content}</div>
                       
-                      {msg.steps && (
-                        <div className="mt-6">
+                      {msg.steps && isDevMode && (
+                        <div className="mt-6 border border-purple-500/10 rounded-2xl p-4 bg-purple-500/5">
+                          <div className="text-[10px] text-purple-400 font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+                             <ShieldCheck className="w-3 h-3" /> Debug Logs
+                          </div>
                           <PlanVisualizer 
                             steps={msg.steps} 
                             onApprove={handleApprove} 
@@ -260,19 +276,27 @@ export const TaskConsole: React.FC<TaskConsoleProps> = ({ theme, onUpgradeClick 
                       </div>
                     </div>
                     <div className={cn(
-                      "max-w-[85%] p-6 rounded-[24px] text-sm leading-relaxed shadow-sm",
+                      "max-w-[85%] p-6 rounded-[24px] text-sm leading-relaxed shadow-sm w-full",
                       theme === 'light' ? "bg-[#F9FAFC] border border-gray-100 text-black" : "bg-white/5 border border-white/5 text-white backdrop-blur-sm"
                     )}>
-                      <div className="flex items-center gap-2 mb-4">
+                      <div className="flex items-center gap-3 mb-2">
                         <Activity className="w-4 h-4 text-azure-radiance animate-spin" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">Executing Autonomous Strategy...</span>
+                        <span className="text-sm font-semibold opacity-80">Barney is thinking...</span>
                       </div>
-                      <PlanVisualizer 
-                        steps={currentSteps} 
-                        onApprove={handleApprove} 
-                        onReject={handleReject} 
-                        theme={theme} 
-                      />
+                      
+                      {isDevMode && (
+                        <div className="mt-6 border border-purple-500/10 rounded-2xl p-4 bg-purple-500/5">
+                          <div className="text-[10px] text-purple-400 font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+                             <ShieldCheck className="w-3 h-3" /> Live Orchestration
+                          </div>
+                          <PlanVisualizer 
+                            steps={currentSteps} 
+                            onApprove={handleApprove} 
+                            onReject={handleReject} 
+                            theme={theme} 
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
