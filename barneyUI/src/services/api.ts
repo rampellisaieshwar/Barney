@@ -11,7 +11,10 @@ export const api = {
       // 1. Kick off the task
       const startRes = await fetch(`${BASE_URL}/run_task`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-api-key': import.meta.env.VITE_API_KEY || 'your-secret'
+        },
         body: JSON.stringify({ task: goal, user_id: "test_user" })
       });
       if (!startRes.ok) throw new Error("Failed to start task");
