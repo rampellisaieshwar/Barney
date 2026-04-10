@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -39,8 +39,12 @@ class TaskRequest(BaseModel):
     budget_usd: float = 0.05 # Phase 34: Intelligence ceiling
 
 @app.post("/run_task")
-def run_task_api(request: TaskRequest):
+def run_task_api(request: TaskRequest, req: Request):
     """Submits a task with Rate Limiting (5/min) and User Indexing."""
+    
+    auth_key = os.getenv("BARNEY_API_KEY", "your-secret")
+    if req.headers.get("x-api-key") != auth_key:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     
     # 1. Rate Limit Enforcement (Fix #2: Atomic Window)
     if is_rate_limited(request.user_id):
