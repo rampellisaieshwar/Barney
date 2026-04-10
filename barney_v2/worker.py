@@ -21,7 +21,14 @@ WORKER_ID = str(uuid.uuid4())[:8]
 def start_worker():
     """Main worker loop for Barney v2."""
     print("🚀 Barney v2 worker started")
-    print("🔗 Redis connected")
+    try:
+        from redis_client import redis_client
+        redis_client.ping()
+        print("🔗 Redis connected")
+    except Exception as e:
+        print(f"🚨 Redis connection failed: {e}. Crashing early.")
+        exit(1)
+        
     print("🧠 LLM ready")
     print(f"  Worker ID: [{WORKER_ID}]. Listening for tasks...")
     

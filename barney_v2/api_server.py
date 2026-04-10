@@ -33,6 +33,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/health")
+def health():
+    """Simple health check endpoint."""
+    return {"status": "ok"}
+
 class TaskRequest(BaseModel):
     task: str
     user_id: str # Required in Phase 29
