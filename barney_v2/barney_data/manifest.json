@@ -3,188 +3,6 @@
     "file": "knowledge_ledger.json",
     "action": "LEDGER_UPDATE",
     "size": 23,
-    "intent": "Persisting verified insight: Task 28",
-    "timestamp": 1775583662287743000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 29",
-    "timestamp": 1775583662288894000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 30",
-    "timestamp": 1775583662290019000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 31",
-    "timestamp": 1775583662291209000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 32",
-    "timestamp": 1775583662292632000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 33",
-    "timestamp": 1775583662294456000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 34",
-    "timestamp": 1775583662295665000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 35",
-    "timestamp": 1775583662296854000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 36",
-    "timestamp": 1775583662298016000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 37",
-    "timestamp": 1775583662299209000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 38",
-    "timestamp": 1775583662300480000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 39",
-    "timestamp": 1775583662301606000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 40",
-    "timestamp": 1775583662302800000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 41",
-    "timestamp": 1775583662304055000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 42",
-    "timestamp": 1775583662305382000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 43",
-    "timestamp": 1775583662306907000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 44",
-    "timestamp": 1775583662308260000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 45",
-    "timestamp": 1775583662309818000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 46",
-    "timestamp": 1775583662311372000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 47",
-    "timestamp": 1775583662312788000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 48",
-    "timestamp": 1775583662314239000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 49",
-    "timestamp": 1775583662315744000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_COMPRESSION",
-    "size": 0,
-    "intent": "Pruning low-value data to prevent noise explosion",
-    "timestamp": 1775583662317989000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 50",
-    "timestamp": 1775583662318716000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 51",
-    "timestamp": 1775583662319957000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 52",
-    "timestamp": 1775583662321245000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
     "intent": "Persisting verified insight: Task 53",
     "timestamp": 1775583662322543000
   },
@@ -698,5 +516,187 @@
     "size": 137,
     "intent": "Persisting verified insight: What is 15 * 12?",
     "timestamp": 1775666377666118000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: hi",
+    "timestamp": 1775837572034325000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Explain quantum computing in simple terms",
+    "timestamp": 1775837731853156000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Explain quantum computing in simple terms",
+    "timestamp": 1775838078461419000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Explain quantum computing in simple terms",
+    "timestamp": 1775838302791139000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Explain quantum gravity",
+    "timestamp": 1775838758145378000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_COMPRESSION",
+    "size": 0,
+    "intent": "Pruning low-value data to prevent noise explosion",
+    "timestamp": 1775838783252946000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: Briefly explain the main difference between Transformers and CNNs",
+    "timestamp": 1775838783254117000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: ping",
+    "timestamp": 1775838872710273000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Explain quantum gravity",
+    "timestamp": 1775838903049206000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: Briefly explain the main difference between Transformers and CNNs",
+    "timestamp": 1775838908682876000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: check",
+    "timestamp": 1775838918133061000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: Find the current population of Tokyo in 2026",
+    "timestamp": 1775838919834572000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Verify system health with a 1-step plan",
+    "timestamp": 1775838988347338000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Explain black holes in simple terms",
+    "timestamp": 1775839420807927000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Explain black holes in simple terms",
+    "timestamp": 1775839476383556000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Explain black holes in simple terms",
+    "timestamp": 1775840003014551000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Explain black holes in simple terms",
+    "timestamp": 1775840209016506000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Explain black holes in simple terms",
+    "timestamp": 1775840289994802000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Explain black holes in simple terms",
+    "timestamp": 1775840339488040000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Explain black holes in simple terms",
+    "timestamp": 1775840389762227000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 20,
+    "intent": "Persisting verified insight: Explain black holes in simple terms",
+    "timestamp": 1775840466398273000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: Explain black holes in simple terms.",
+    "timestamp": 1775842729537659000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 216,
+    "intent": "Persisting verified insight: Explain black holes in simple terms",
+    "timestamp": 1775842973494858000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: Explain black holes in simple terms.",
+    "timestamp": 1775843473449295000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: Explain black holes in simple terms",
+    "timestamp": 1775843721049386000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: Explain black holes in simple terms",
+    "timestamp": 1775844400058863000
   }
 ]

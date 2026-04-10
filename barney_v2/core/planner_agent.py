@@ -89,15 +89,16 @@ def generate_plan(task: str, memory_context: str = "", strategy_info: dict = Non
     
     print(f"  🧠 [planner] Generating plan for: {task[:50]}...")
     try:
+        print("🧠 PLANNER INPUT:", user_prompt)
         print(f"  🧠 [planner] Sending request to LLM (Role: Strong)...")
         resp_data = call_llm(user_prompt, system_prompt=sys_prompt, role="strong", task_id=task_id)
-        
-        # Phase 12.5: Handle Structured Error Dicts
-        if isinstance(resp_data, dict) and resp_data.get("status") == "LLM_FAILURE":
-             print(f"  🚨 [planner] Terminal Brain Failure: {resp_data.get('error')}")
-             return {"status": "FAILED", "reason": "BRAIN_DEAD", "error": resp_data.get("error")}
+        print(f"  🧠 [planner] call_llm returned: {type(resp_data)}")
+        if resp_data is None:
+            print("  🚨 [planner] CRITICAL: call_llm returned None!")
+            raise ValueError("call_llm returned None")
 
         resp_text = resp_data.get("content", "")
+        print("🧠 PLANNER OUTPUT:", resp_text)
         print(f"  🧠 [planner] Received LLM response (len={len(resp_text)}) | Confidence: {resp_data.get('confidence')}")
         plan_data = json.loads(_clean_json(resp_text), strict=False)
         

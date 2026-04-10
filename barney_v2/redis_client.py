@@ -146,10 +146,12 @@ def check_llm_throttle(model_id: str = "llama-3.1-8b-instant", limit: int = None
 def add_task_usage(task_id: str, tokens: int, cost: float):
     """Atomically aggregates costs and tokens for a task (Phase 33)."""
     current = get_task(task_id) or {}
-    metrics = current.get("metrics", {"total_tokens": 0, "total_cost": 0.0, "models": []})
+    metrics = current.get("metrics")
+    if not isinstance(metrics, dict):
+        metrics = {"total_tokens": 0, "total_cost": 0.0, "models": []}
     
     metrics["total_tokens"] = metrics.get("total_tokens", 0) + tokens
-    metrics["total_cost"] = round(metrics.get("total_cost", 0.0) + cost, 6)
+    metrics["total_cost"] = round(float(metrics.get("total_cost", 0.0)) + cost, 6)
     
     update_task(task_id, current.get("status", "RUNNING"), metrics=metrics)
 
@@ -163,13 +165,14 @@ def update_task(task_id: str, status: str, result=None, logs=None, worker_id: st
     final_user_id = current.get("user_id") if current.get("user_id") else (user_id if user_id else "anonymous")
 
     state = {
+        "task_id": task_id,
         "status": status,
-        "result": result,
+        "result": result if result is not None else current.get("result"),
         "logs": logs if logs is not None else current.get("logs", []),
         "worker_id": worker_id if worker_id else current.get("worker_id"),
         "user_id": final_user_id,
-        "checkpoint": checkpoint if checkpoint is not None else current.get("checkpoint"),
-        "metrics": metrics if metrics is not None else current.get("metrics"),
+        "checkpoint": checkpoint if checkpoint else current.get("checkpoint"),
+        "metrics": metrics if isinstance(metrics, dict) else (current.get("metrics") if isinstance(current.get("metrics"), dict) else {"total_tokens": 0, "total_cost": 0.0, "models": []}),
         "budget_usd": budget_usd if budget_usd is not None else current.get("budget_usd", 0.05),
         "updated_at": time.time()
     }

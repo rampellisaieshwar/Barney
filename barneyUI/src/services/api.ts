@@ -9,7 +9,7 @@ export const api = {
   async *streamTask(goal: string) {
     // In a real app, this would use fetch with a ReadableStream or WebSockets
     // For now, we simulate the backend response steps
-    
+
     const mockSteps: PlanStep[] = [
       {
         id: '1',

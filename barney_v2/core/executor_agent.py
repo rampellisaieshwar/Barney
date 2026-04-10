@@ -58,18 +58,33 @@ def _call_tool(tool_name, input_data, task_id=None, replan_counter=0, step_id=No
     tool = TOOLS.get(tool_name)
     result = tool(input_data)
     
-    # 5. Result Validation & Persistence
+    # 5. Useless Result Detection — treat empty/failed tool results as failures
+    USELESS_MARKERS = [
+        "no direct abstract found",
+        "no results found",
+        "error:",
+        "could not find",
+        "not available",
+        "no data",
+    ]
+    result_str_lower = str(result).lower().strip()
+    is_useless = any(marker in result_str_lower for marker in USELESS_MARKERS)
+    if is_useless or not result or len(result_str_lower) < 10:
+        print(f"  ⚠️ [tool] USELESS RESULT detected from {tool_name}: '{str(result)[:80]}'")
+        if task_id:
+            append_log(task_id, f"⚠️ [TOOL] {tool_name} returned useless result: {str(result)[:100]}")
+        return f"[TOOL_FAILED] {tool_name} returned no useful data. Use your own knowledge instead."
+    
+    # 6. Result Validation & Persistence
     if task_id and step_id and tool_name not in NON_IDEMPOTENT_TOOLS and result:
-        # Simple poison-proof check: must be non-empty and non-failed
         is_valid = True
-        result_str = str(result).lower()
-        if "error" in result_str or "failed" in result_str or "exception" in result_str:
+        if "error" in result_str_lower or "failed" in result_str_lower or "exception" in result_str_lower:
             is_valid = False
             
         if is_valid:
             try:
                 serialized_res = json.dumps(result)
-                if len(serialized_res) < 20000: # 20KB Size Guard
+                if len(serialized_res) < 20000:
                     save_tool_result(idempotency_key, result)
                     print(f"  💾 [tool-idempotency] STORE tool={tool_name} size={len(serialized_res)/1024:.1f}KB")
                 else:
@@ -116,15 +131,42 @@ def execute_single_step(task: str, step: str, step_idx: int, total_steps: int,
     if tool_history is None: tool_history = []
     
     current_context = history
-    MAX_RETRIES = 2
+    MAX_TOTAL_ATTEMPTS = 3
     final_output = None
     tool_calls_this_step = 0
     repeated_detected = False
 
-    for attempt in range(1, MAX_RETRIES + 2):
+    for attempt in range(1, MAX_TOTAL_ATTEMPTS + 1):
         retry_instruction = ""
         if attempt > 1:
             retry_instruction = "\n\n⚠️ REJECTION: Your previous response was shallow. Add evidence and technical details."
+        
+        force_llm_synthesis = False
+        if attempt >= MAX_TOTAL_ATTEMPTS:
+            print("🚨 Max attempts reached. Forcing final answer.")
+            force_llm_synthesis = True
+
+        # Determine if this is the last step or a synthesis step
+        is_last_step = (step_idx == total_steps - 1)
+        is_synthesis_step = any(kw in step.lower() for kw in ["synthesize", "summarize", "compile", "final", "conclude"])
+        previous_tool_failed = "[TOOL_FAILED]" in current_context or "No direct abstract found" in current_context or "[SYSTEM]:" in current_context
+        
+        direct_answer_instruction = ""
+        if is_last_step or is_synthesis_step:
+            direct_answer_instruction = (
+                "\n\n🚨 CRITICAL: This is the FINAL/SYNTHESIS step. You MUST use action='final' and provide "
+                "a complete, well-structured answer in the 'answer' field. Do NOT call any tools. "
+                "Synthesize everything you know into a clear response.\n"
+            )
+        if previous_tool_failed or strategy_type == "direct" or force_llm_synthesis:
+            direct_answer_instruction += (
+                "\n\nYou MUST answer the question directly.\n\n"
+                "DO NOT use tools.\n"
+                "DO NOT search.\n"
+                "Use your own knowledge.\n\n"
+                f"Task:\n{task}\n\n"
+                "Answer clearly and simply.\n"
+            )
 
         step_prompt = (
             f"Task: {task}\n"
@@ -152,17 +194,19 @@ def execute_single_step(task: str, step: str, step_idx: int, total_steps: int,
             "- NO REPETITION: Do NOT use exactly same search/file inputs as previous steps in 'History'.\n"
             "- EVIDENCE: If using a tool, refine the query to target missing details.\n"
             "- CONSTRAINTS: Must satisfy: " + str(constraints) + "\n"
-            "- FINALITY: If step is 'Final' or 'Synthesize', include reasoning ('because') and data.\n"
+            "- FINALITY: If step is 'Final' or 'Synthesize', use action='final' with a detailed answer.\n"
+            "- KNOWLEDGE: If tools cannot help, you MUST answer from your own knowledge using action='final'.\n"
+            f"{direct_answer_instruction}"
             f"{retry_instruction}"
         )
 
         try:
+            print("⚙️ EXECUTOR INPUT:", step_prompt)
             resp_data = call_llm(step_prompt, system_prompt="Focus on building an efficient, grounded, and PROGRESSIVE response.", role=role, task_id=task_id, remaining_steps=remaining_steps)
-            
-            # Phase 12.5: Terminal Brain Failure awareness
-            if isinstance(resp_data, dict) and resp_data.get("status") == "LLM_FAILURE":
-                 print(f"    🚨 [executor] Tactical Brain Failure: {resp_data.get('error')}")
-                 return {"status": "failed", "reason": "BRAIN_DEAD", "error": resp_data.get("error")}
+            print(f"    🧠 [executor] call_llm returned: {type(resp_data)}")
+            if resp_data is None:
+                print("    🚨 [executor] CRITICAL: call_llm returned None!")
+                raise ValueError("call_llm returned None")
 
             resp_text = resp_data.get("content", "")
             action_data = parse_tool_call(resp_text)
@@ -171,7 +215,13 @@ def execute_single_step(task: str, step: str, step_idx: int, total_steps: int,
                 continue
 
             action = action_data.get("action")
-            if action == "tool":
+            
+            use_llm_directly = False
+            if previous_tool_failed or strategy_type == "direct" or force_llm_synthesis:
+                print("⚠️ Skipping tools, forcing LLM answer")
+                use_llm_directly = True
+                
+            if action == "tool" and not use_llm_directly:
                 tool_name = action_data.get("tool")
                 tool_input = action_data.get("input")
                 
@@ -194,35 +244,85 @@ def execute_single_step(task: str, step: str, step_idx: int, total_steps: int,
                 # In core/loop.py, we already generate step_id. 
                 # For execute_single_step to be stateless-aware, we add step_id to its args.
                 result_raw = _call_tool(tool_name, tool_input, task_id=task_id, replan_counter=replan_counter, step_id=step_id, step_idx=step_idx)
-                current_context += f"\n[Step {step_idx+1}] Tool:{tool_name} Result: {result_raw}"
-                # Successful tool call -> finish step
-                return {
+                result_raw_str = str(result_raw)
+                current_context += f"\n[Step {step_idx+1}] Tool:{tool_name} Result: {result_raw_str}"
+                
+                # Detect useless tool results and force LLM synthesis fallback
+                if "[TOOL_FAILED]" in result_raw_str or "No direct abstract found" in result_raw_str:
+                    print(f"    ⚠️ [executor] Tool returned useless data. Falling back to LLM synthesis.")
+                    # Don't return tool-only result — continue to let LLM synthesize from knowledge
+                    current_context += f"\n[SYSTEM]: The tool could not find useful data. You MUST answer from your own knowledge."
+                    continue
+                
+                # Successful tool call with real data -> finish step
+                res = {
                     "status": "success", "executed_step": step, 
                     "history_update": current_context, "tool_calls": tool_calls_this_step,
                     "repeated_tool": repeated_detected, "answer": None,
                     "model": resp_data.get("model"), "confidence": resp_data.get("confidence")
                 }
+                print("⚙️ EXECUTOR OUTPUT:", res)
+                return res
 
-            elif action == "final":
+            elif action == "final" or use_llm_directly:
                 answer = action_data.get("answer", "")
+                if use_llm_directly and not answer:
+                    # If parser gave us action: tool but we forced llm directly, it might not have an answer field. 
+                    # Use content as fallback.
+                    answer = resp_text if not answer else answer
+                    
                 depth = calculate_depth_score(answer)
                 req_depth = get_required_depth(task)
                 struct_ok = enforce_structure(strategy_type, answer)
                 
-                if (depth >= req_depth and struct_ok) or attempt == MAX_RETRIES + 1:
-                    return {
+                # Accept final answer if quality is sufficient OR if this is the last attempt
+                # Previously, shallow but valid answers were being rejected, causing "No answer generated"
+                if (depth >= req_depth and struct_ok) or attempt >= MAX_RETRIES or len(answer.strip()) > 20:
+                    res = {
                         "status": "success", "executed_step": step, 
                         "history_update": current_context + f"\n[Final Output]: {answer}",
                         "tool_calls": tool_calls_this_step, 
                         "repeated_tool": repeated_detected, "answer": answer,
                         "model": resp_data.get("model"), "confidence": resp_data.get("confidence")
                     }
-                else: continue
+                    print("⚙️ EXECUTOR OUTPUT:", res)
+                    return res
+                else:
+                    print(f"    ⚠️ [executor] Final answer rejected: depth={depth}/{req_depth}, struct={struct_ok}. Retrying...")
+                    continue
         except Exception as e:
             print(f"    🚨 [executor] Tactical error in Step {step_idx+1}: {e}")
             continue
-            
-    return {"status": "failed", "reason": "Max retries hit for single step execution."}
+    
+    # FALLBACK: All retries exhausted — force LLM synthesis from general knowledge
+    # This is the critical safety net: the system MUST always produce an answer
+    print(f"  🧠 [executor] FALLBACK: Forcing LLM synthesis for step '{step}'")
+    try:
+        fallback_prompt = (
+            f"You are answering this task: {task}\n"
+            f"Current step: {step}\n"
+            f"Context so far: {current_context}\n\n"
+            f"The tools were unable to find useful information. "
+            f"You MUST answer this using your own general knowledge. "
+            f"Provide a clear, thorough, well-structured answer. "
+            f"Do NOT say you need more information. Just answer directly."
+        )
+        fallback_resp = call_llm(fallback_prompt, role=role, task_id=task_id)
+        fallback_content = fallback_resp.get("content", "") if fallback_resp else ""
+        
+        if fallback_content and len(fallback_content.strip()) > 20:
+            print(f"  ✅ [executor] FALLBACK produced answer ({len(fallback_content)} chars)")
+            return {
+                "status": "success", "executed_step": step,
+                "history_update": current_context + f"\n[LLM Synthesis]: {fallback_content}",
+                "tool_calls": tool_calls_this_step,
+                "repeated_tool": repeated_detected, "answer": fallback_content,
+                "model": fallback_resp.get("model"), "confidence": fallback_resp.get("confidence")
+            }
+    except Exception as fb_err:
+        print(f"  🚨 [executor] FALLBACK failed: {fb_err}")
+    
+    return {"status": "failed", "reason": "Max retries hit and fallback synthesis failed."}
 
 def execute_plan(task: str, plan_data: dict, memory_context: str = "", task_id: str = None, replan_counter: int = 0) -> dict:
     """Legacy compatibility: Execute whole plan at once."""

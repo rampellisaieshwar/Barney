@@ -11,7 +11,7 @@ from core.loop import run_task
 from core.llm import get_client
 
 def setup_env():
-    load_dotenv()
+    load_dotenv("/Users/saieshwarrampelli/Downloads/Barney/.env")
     if not os.path.exists("barney_data"):
         os.makedirs("barney_data")
 

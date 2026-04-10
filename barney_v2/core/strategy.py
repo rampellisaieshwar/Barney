@@ -54,6 +54,11 @@ def select_strategy(task: str, memory_insights: list, global_stats: dict = None,
     Select execution strategy using Strategy Locking and Fatigue.
     (Step #2 & Step #5)
     """
+    if len(task) < 100 and "explain" in task.lower():
+        return {
+            "strategy": "direct", "warning": "Fast track",
+            "suggested_strategy": "direct", "confidence": 1.0, "avg_steps": 1.0
+        }
     # ── 2. Normalized Task Complexity ────────────────────────────────
     task_words = task.split()
     complexity = len(task_words)

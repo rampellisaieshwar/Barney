@@ -1,6 +1,13 @@
 import time
 import json
 import uuid
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(env_path)
+
 from core.loop import run_task
 from redis_client import (
     dequeue_task_priority, update_task, append_log, 
@@ -13,7 +20,10 @@ WORKER_ID = str(uuid.uuid4())[:8]
 
 def start_worker():
     """Main worker loop for Barney v2."""
-    print(f"🚀 Barney Worker [{WORKER_ID}] started. Listening for tasks...")
+    print("🚀 Barney v2 worker started")
+    print("🔗 Redis connected")
+    print("🧠 LLM ready")
+    print(f"  Worker ID: [{WORKER_ID}]. Listening for tasks...")
     
     consecutive_high_tasks = 0
 
@@ -30,8 +40,19 @@ def start_worker():
             task_data = dequeue_task_priority(skip_high=skip_high_priority)
             
             if task_data:
-                task_id, task_input, priority, cost, user_id = task_data
+                # DEBUG: Trace the raw task data from Redis
+                print(f"DEBUG RAW TASK: {task_data}")
                 
+                # SAFE PARSER: Handle multi-priority tuple return from redis_client (Phase 34 compatibility)
+                # Unpacks up to 6 dimensions: (task_id, task, priority, cost, user_id, budget_usd)
+                task_id = task_data[0]
+                task_input = task_data[1]
+                priority = task_data[2]
+                cost = task_data[3]
+                user_id = task_data[4]
+                budget = task_data[5] if len(task_data) > 5 else 0.05
+                
+                print(f"PARSED TASK: id={task_id}, user={user_id}, cost={cost}")                
                 # Step 3: Global Concurrency Guard (Fix #2, #4)
                 acquired_cost_slot = False
                 if cost == "HIGH" and active_high_cost >= GLOBAL_MAX_HIGH_COST:

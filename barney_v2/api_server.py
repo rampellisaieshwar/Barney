@@ -2,10 +2,20 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-import uuid
-import json
 import asyncio
 import time
+import os
+import uuid
+import json
+from dotenv import load_dotenv
+from pathlib import Path
+
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(env_path)
+
+print("🚀 Barney v2 API started")
+print("🔗 Connect to Redis at: " + str(os.getenv("REDIS_HOST", "localhost")))
+print("🧠 LLM interface ready")
 
 from redis_client import (
     enqueue_task, get_task, is_rate_limited, 
@@ -24,6 +34,7 @@ app.add_middleware(
 )
 
 class TaskRequest(BaseModel):
+    task: str
     user_id: str # Required in Phase 29
     budget_usd: float = 0.05 # Phase 34: Intelligence ceiling
 
