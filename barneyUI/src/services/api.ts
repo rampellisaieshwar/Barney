@@ -7,51 +7,64 @@ export const api = {
    * Placeholder for streaming task execution from FastAPI
    */
   async *streamTask(goal: string) {
-    // In a real app, this would use fetch with a ReadableStream or WebSockets
-    // For now, we simulate the backend response steps
-
-    const mockSteps: PlanStep[] = [
-      {
-        id: '1',
-        title: 'Analyze Request Context',
-        description: 'Evaluating the depth and scope of the user request.',
-        status: 'completed',
-        stage: 'explore',
-        risk: { score: 10, level: 'low', reasoning: 'Standard context analysis.' },
-        requiresApproval: false
-      },
-      {
-        id: '2',
-        title: 'Access External Knowledge Base',
-        description: 'Retrieving relevant patterns from the knowledge ledger.',
-        status: 'completed',
-        stage: 'explore',
-        risk: { score: 25, level: 'low', reasoning: 'Read-only access to internal data.' },
-        requiresApproval: false
-      },
-      {
-        id: '3',
-        title: 'Execute System Modification',
-        description: 'Applying changes to the core configuration files.',
-        status: 'pending',
-        stage: 'execute',
-        risk: { score: 85, level: 'high', reasoning: 'High impact on system stability. Requires human verification.' },
-        requiresApproval: true
-      },
-      {
-        id: '4',
-        title: 'Verify Integrity',
-        description: 'Running validation suite to ensure compliance.',
-        status: 'pending',
-        stage: 'validate',
-        risk: { score: 15, level: 'low', reasoning: 'Standard validation procedure.' },
-        requiresApproval: false
+    try {
+      // 1. Kick off the task
+      const startRes = await fetch(`${BASE_URL}/run_task`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task: goal, user_id: "test_user" })
+      });
+      if (!startRes.ok) throw new Error("Failed to start task");
+      
+      const { task_id } = await startRes.json();
+      
+      let isDone = false;
+      let lastLogsCount = 0;
+      
+      while (!isDone) {
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Poll every 2s
+        
+        const statusRes = await fetch(`${BASE_URL}/status/${task_id}`);
+        if (!statusRes.ok) continue;
+        
+        const data = await statusRes.json();
+        const logs = data.logs || [];
+        
+        // Yield new steps based on logs
+        for (let i = lastLogsCount; i < logs.length; i++) {
+          yield {
+            id: `${task_id}-log-${i}`,
+            title: logs[i].substring(0, 50),
+            description: logs[i],
+            status: 'completed',
+            stage: logs[i].includes('TOOL') ? 'execute' : 'explore',
+            risk: { score: 0, level: 'low', reasoning: 'Info log' },
+            requiresApproval: false
+          };
+        }
+        lastLogsCount = logs.length;
+        
+        if (data.status === 'DONE' || data.status === 'FAILED') {
+           isDone = true;
+           if (data.result && data.result.answer) {
+             yield {
+                id: `${task_id}-answer`,
+                title: 'Final Answer',
+                description: data.result.answer,
+                status: 'completed',
+                stage: 'validate',
+                risk: { score: 0, level: 'low', reasoning: `Confidence: ${data.result.confidence}, Time: ${data.result.response_time_ms}ms` },
+                requiresApproval: false
+             };
+           }
+        }
       }
-    ];
-
-    for (const step of mockSteps) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      yield step;
+    } catch (err) {
+      console.error(err);
+      yield {
+        id: 'err', title: 'Connection Failed', description: 'Could not reach backend',
+        status: 'failed', stage: 'validate', risk: { score: 100, level: 'high', reasoning: 'Down' }, requiresApproval: false
+      };
     }
   },
 
