@@ -396,7 +396,7 @@ def web_search(query_or_dict: str) -> dict:
             print(f"  🏏 [tool] Score query detected. Fetching hard data from XML feed.")
             hard_scores = _fetch_hard_scores()
             if hard_scores:
-                formatted.extend(hard_scores[:3]) # Top 3 live matches
+                formatted.extend(hard_scores[:15]) # Inject top 15 live matches across all formats
                 
         # Primary: DuckDuckGo
         ddg_res = _scrape_ddg(query, headers)
