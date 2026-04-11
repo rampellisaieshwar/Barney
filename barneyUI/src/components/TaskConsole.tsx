@@ -16,6 +16,51 @@ import { PlanStep } from '../types';
 import { api } from '../services/api';
 import { PlanVisualizer } from './PlanVisualizer';
 
+const CollapsedTrace: React.FC<{ steps: PlanStep[], theme: 'light' | 'dark' }> = ({ steps, theme }) => {
+  const [expanded, setExpanded] = useState(false);
+  const nonFinal = steps.filter(s => s.title !== 'Final Answer');
+  if (nonFinal.length === 0) return null;
+  return (
+    <div className="w-full mt-1">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className={cn(
+          "flex items-center gap-2 text-xs transition-opacity opacity-30 hover:opacity-60",
+          theme === 'light' ? "text-black" : "text-white"
+        )}
+      >
+        <ChevronRight className={cn("w-3 h-3 transition-transform duration-200", expanded && "rotate-90")} />
+        <span>{nonFinal.length} steps</span>
+      </button>
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className={cn(
+              "mt-2 rounded-2xl border px-4 py-3 space-y-2",
+              theme === 'light' ? "border-gray-100 bg-gray-50" : "border-white/5 bg-white/5"
+            )}>
+              {nonFinal.map((step, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs">
+                  <div className="w-1 h-1 rounded-full bg-azure-radiance mt-1.5 flex-shrink-0" />
+                  <span className={cn(
+                    theme === 'light' ? "text-gray-500" : "text-white/40"
+                  )}>{step.title}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 interface TaskConsoleProps {
   theme: 'light' | 'dark';
   onSettingsClick: () => void;
@@ -191,15 +236,8 @@ export const TaskConsole: React.FC<TaskConsoleProps> = ({ theme, onSettingsClick
                   )}
                 </div>
 
-                {msg.role === 'assistant' && msg.steps && (
-                  <div className="w-full mt-2">
-                    <PlanVisualizer 
-                      steps={msg.steps} 
-                      onApprove={() => {}} 
-                      onReject={() => {}} 
-                      theme={theme} 
-                    />
-                  </div>
+                {msg.role === 'assistant' && msg.steps && msg.steps.filter(s => s.title !== 'Final Answer').length > 0 && (
+                  <CollapsedTrace steps={msg.steps} theme={theme} />
                 )}
               </motion.div>
             ))}
@@ -215,13 +253,28 @@ export const TaskConsole: React.FC<TaskConsoleProps> = ({ theme, onSettingsClick
                   <span className="text-xs font-bold uppercase tracking-widest opacity-40">Thinking...</span>
                 </div>
                 {currentSteps.length > 0 && (
-                  <div className="w-full opacity-30">
-                    <PlanVisualizer 
-                      steps={currentSteps} 
-                      onApprove={() => {}} 
-                      onReject={() => {}} 
-                      theme={theme} 
-                    />
+                  <div className={cn(
+                    "w-full rounded-2xl border overflow-hidden",
+                    theme === 'light' ? "border-gray-100 bg-gray-50" : "border-white/5 bg-white/5"
+                  )}>
+                    <div className="px-4 py-3 space-y-2 max-h-52 overflow-y-auto custom-scrollbar">
+                      {currentSteps.map((step, i) => (
+                        <motion.div
+                          key={step.id}
+                          initial={{ opacity: 0, x: -6 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.15 }}
+                          className="flex items-start gap-2 text-sm"
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full bg-azure-radiance mt-1.5 flex-shrink-0 animate-pulse" />
+                          <span className={cn(
+                            theme === 'light' ? "text-gray-600" : "text-white/50"
+                          )}>
+                            {step.title}
+                          </span>
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </motion.div>

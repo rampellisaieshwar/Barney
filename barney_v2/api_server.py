@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request, Header
+from fastapi import FastAPI, HTTPException, Request, Header, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -212,6 +212,45 @@ def get_user_tasks(user_id: str):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch history: {str(e)}")
+
+@app.websocket("/ws/{task_id}")
+async def websocket_logs(websocket: WebSocket, task_id: str):
+    """Stream live logs for a task via WebSocket."""
+    await websocket.accept()
+    import asyncio
+    last_index = 0
+    try:
+        while True:
+            from redis_client import get_task
+            task_data = get_task(task_id)
+            if not task_data:
+                await asyncio.sleep(0.5)
+                continue
+
+            logs = task_data.get("logs", [])
+            for i in range(last_index, len(logs)):
+                await websocket.send_json({
+                    "type": "log",
+                    "index": i,
+                    "message": logs[i]
+                })
+            last_index = len(logs)
+
+            status = task_data.get("status", "")
+            if status in ("DONE", "FAILED"):
+                answer = task_data.get("answer", "")
+                confidence = task_data.get("confidence", 0)
+                await websocket.send_json({
+                    "type": "done",
+                    "status": status,
+                    "answer": answer,
+                    "confidence": confidence
+                })
+                break
+
+            await asyncio.sleep(0.3)
+    except WebSocketDisconnect:
+        pass
 
 @app.get("/stream/{task_id}")
 async def stream_task(task_id: str):
