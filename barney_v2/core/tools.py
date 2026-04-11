@@ -363,23 +363,53 @@ def _scrape_brave(query: str, headers: dict) -> list:
     return formatted
 
 
+def _fetch_hard_scores() -> list:
+    """Fetch exact live scores from pure XML feeds to bypass JS blockers."""
+    import xml.etree.ElementTree as ET
+    try:
+        url = "http://static.cricinfo.com/rss/livescores.xml"
+        res = requests.get(url, timeout=5)
+        root = ET.fromstring(res.text)
+        scores = []
+        for item in root.findall(".//item"):
+            title = item.find("title").text if item.find("title") is not None else ""
+            desc = item.find("description").text if item.find("description") is not None else ""
+            if title:
+                scores.append({"title": "Live Match Score", "snippet": title, "url": "http://www.cricinfo.com"})
+        return scores
+    except Exception as e:
+        print(f"  ⚠️ [tool] Hard score fetch failed: {e}")
+        return []
+
 def web_search(query_or_dict: str) -> dict:
-    """Multi-Source Signal Acquisition with failover (Phase 47)."""
+    """Multi-Source Signal Acquisition with failover (Phase 47/49)."""
     query = query_or_dict.get("query") if isinstance(query_or_dict, dict) else query_or_dict
     
     print(f"  🔍 [tool] DDG Search: {query}")
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
     
     try:
+        formatted = []
+        # Phase 49: Direct Score API Injection
+        q_lower = query.lower()
+        if any(term in q_lower for term in ["score", "match", "ipl", "cricket"]):
+            print(f"  🏏 [tool] Score query detected. Fetching hard data from XML feed.")
+            hard_scores = _fetch_hard_scores()
+            if hard_scores:
+                formatted.extend(hard_scores[:3]) # Top 3 live matches
+                
         # Primary: DuckDuckGo
-        formatted = _scrape_ddg(query, headers)
+        ddg_res = _scrape_ddg(query, headers)
+        if ddg_res:
+            formatted.extend(ddg_res)
         
         # Fallback: Brave Search (if DDG blocked/empty)
-        if not formatted:
+        if not ddg_res:
             print(f"  🔄 [tool] DDG blocked/empty. Falling back to Brave Search.")
-            formatted = _scrape_brave(query, headers)
-            if formatted:
-                print(f"  ✅ [tool] Brave fallback: {len(formatted)} results.")
+            brave_res = _scrape_brave(query, headers)
+            if brave_res:
+                print(f"  ✅ [tool] Brave fallback: {len(brave_res)} results.")
+                formatted.extend(brave_res)
         
         if not formatted:
             return {
@@ -390,7 +420,7 @@ def web_search(query_or_dict: str) -> dict:
                 
         return {
             "status": "success",
-            "results": formatted,
+            "results": formatted[:8], # Cap length
             "summary": f"Retrieved {len(formatted)} snippets for grounding."
         }
     except Exception as e:
