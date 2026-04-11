@@ -221,6 +221,29 @@ def write_file(filename_or_dict: str, content: str = None) -> str:
     except Exception as e:
         return f"Write Error: {str(e)}"
 
+def _fetch_page_content(url: str, max_chars: int = 2000) -> str:
+    """Fetch actual page content and extract meaningful text (Phase 48)."""
+    from bs4 import BeautifulSoup
+    try:
+        if any(local in url.lower() for local in ["localhost", "127.0.0.1", "0.0.0.0"]):
+            return ""
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+        res = requests.get(url, headers=headers, timeout=8)
+        soup = BeautifulSoup(res.text, "html.parser")
+        
+        # Remove script, style, nav, footer, header
+        for tag in soup.select("script, style, nav, footer, header, aside, iframe"):
+            tag.decompose()
+        
+        text = soup.get_text(separator="\n")
+        # Clean up: remove empty lines, normalize whitespace
+        lines = [" ".join(l.split()) for l in text.split("\n") if len(l.strip()) > 15]
+        clean_text = "\n".join(lines[:50])  # cap at 50 lines
+        return clean_text[:max_chars]
+    except Exception as e:
+        print(f"  ⚠️ [tool] Page fetch failed for {url[:50]}: {e}")
+        return ""
+
 def http_fetch(input_data: dict) -> str:
     """Sanitized HTTP fetch tool with timeout and truncation."""
     url = input_data.get("url")
@@ -295,7 +318,7 @@ def _scrape_ddg(query: str, headers: dict) -> list:
     return formatted
 
 def _scrape_brave(query: str, headers: dict) -> list:
-    """Fallback: Scrape Brave Search results (Phase 47)."""
+    """Fallback: Scrape Brave Search results."""
     from bs4 import BeautifulSoup
     import urllib.parse
     url = f"https://search.brave.com/search?q={urllib.parse.quote_plus(query)}"
@@ -303,41 +326,39 @@ def _scrape_brave(query: str, headers: dict) -> list:
     soup = BeautifulSoup(res.text, "html.parser")
     
     formatted = []
+    # Brave uses <div class="snippet"> for results
+    for g in soup.select("div.snippet")[:5]:
+        title_tag = g.select_one("span.snippet-title")
+        snippet_tag = g.select_one("p.snippet-description")
+        link_tag = g.select_one("a")
+        
+        title = " ".join(title_tag.text.split()) if title_tag else ""
+        snippet = " ".join(snippet_tag.text.split()) if snippet_tag else ""
+        href = link_tag["href"] if link_tag and link_tag.has_attr("href") else "#"
+        
+        if title and snippet:
+            formatted.append({"title": title, "snippet": snippet, "url": href})
     
-    # 1. News Carousel (enrichment-card-item) — richest data for live/news queries
-    for card in soup.select("a.enrichment-card-item")[:5]:
-        title_el = card.select_one("div.desktop-small-semibold")
-        site_el = card.select_one("div.enrichment-card-site")
-        time_el = card.select_one("div.enrichment-card-metadata")
-        href = card["href"] if card.has_attr("href") else "#"
-        
-        title = " ".join(title_el.get_text().split()) if title_el else ""
-        site = " ".join(site_el.get_text().split()) if site_el else ""
-        time_str = " ".join(time_el.get_text().split()) if time_el else ""
-        
-        if title:
-            snippet = f"{title} ({time_str})" if time_str else title
-            formatted.append({
-                "title": f"{title} - {site}",
-                "snippet": snippet,
-                "url": href
-            })
+    # Alternative selector fallback for Brave's layout variations
+    if not formatted:
+        for g in soup.select("div[data-type='web']")[:5]:
+            title_tag = g.select_one("a div.title")
+            snippet_tag = g.select_one("div.description")
+            link_tag = g.select_one("a.result-header")
+            
+            title = " ".join(title_tag.text.split()) if title_tag else ""
+            snippet = " ".join(snippet_tag.text.split()) if snippet_tag else ""
+            href = link_tag["href"] if link_tag and link_tag.has_attr("href") else "#"
+            
+            if title and snippet:
+                formatted.append({"title": title, "snippet": snippet, "url": href})
     
-    # 2. Regular search snippets — broader results
-    for snip in soup.select("div.snippet[data-pos]")[:5]:
-        # Brave uses nested structure — get full text and parse
-        full_text = " ".join(snip.get_text().split())
-        link_el = snip.select_one("a")
-        href = link_el["href"] if link_el and link_el.has_attr("href") else "#"
-        
-        # Split the text: first part is usually site+url, then title, then description
-        # Extract the meaningful content (skip short fragments)
-        if len(full_text) > 50:
-            formatted.append({
-                "title": full_text[:120],
-                "snippet": full_text,
-                "url": href
-            })
+    # Last resort: extract any text blocks near links
+    if not formatted:
+        all_text = soup.get_text(separator="\n")
+        lines = [l.strip() for l in all_text.split("\n") if len(l.strip()) > 40]
+        for line in lines[:5]:
+            formatted.append({"title": "Brave Result", "snippet": line, "url": "#"})
     
     return formatted
 

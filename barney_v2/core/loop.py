@@ -185,7 +185,8 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
         # Mandatory Pre-Search Grounding
         if grounding_data.get("required_grounding") in ["REAL_TIME", "RECENT"]:
             print(f"  ⚡ [loop] REAL_TIME intent detected. Triggering mandatory grounding search.")
-            from core.tools import web_search
+            from core.tools import web_search, _fetch_page_content
+            all_search_results = []
             for fact in grounding_data.get("target_facts", []):
                 ground_res = web_search({"query": fact})
                 
@@ -197,6 +198,8 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
                 else:
                     ground_res_str = json.dumps(ground_res) if isinstance(ground_res, dict) else str(ground_res)
                     state.history_text += f"\n[Context Grounding] Tool:search Result: {ground_res_str}"
+                    if isinstance(ground_res, dict):
+                        all_search_results.extend(ground_res.get("results", []))
             
             # --- PHASE 43: Boundary Robustness (Retry Logic) ---
             if "[SIGNAL_FAILURE]" in state.history_text and "Result: {" not in state.history_text:
@@ -210,6 +213,33 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
                 if ground_res.get("status") not in ["low_signal", "error"]:
                     ground_res_str = json.dumps(ground_res) if isinstance(ground_res, dict) else str(ground_res)
                     state.history_text += f"\n[Retry Grounding] Tool:search Result: {ground_res_str}"
+                    if isinstance(ground_res, dict):
+                        all_search_results.extend(ground_res.get("results", []))
+            
+            # --- PHASE 48: Deep Content Fetching ---
+            # Fetch actual page content from top 2 URLs to get REAL DATA
+            fetched_urls = set()
+            deep_content = ""
+            for r in all_search_results[:3]:
+                url = r.get("url", "#")
+                if url == "#" or url in fetched_urls:
+                    continue
+                # Resolve DDG redirect URLs
+                if "duckduckgo.com" in url:
+                    import urllib.parse
+                    parsed = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
+                    url = parsed.get("uddg", [url])[0]
+                fetched_urls.add(url)
+                print(f"  📄 [loop] DEEP FETCH: {url[:80]}")
+                content = _fetch_page_content(url, max_chars=1500)
+                if content and len(content) > 50:
+                    deep_content += f"\n[Deep Content from {url[:60]}]:\n{content}\n"
+                if len(fetched_urls) >= 2:
+                    break
+            
+            if deep_content:
+                print(f"  ✅ [loop] Deep content fetched: {len(deep_content)} chars from {len(fetched_urls)} pages.")
+                state.history_text += f"\n--- DEEP PAGE CONTENT ---{deep_content}"
         
         # --- PHASE 42: Execution Mode Switch (Simple vs Deep) ---
         def is_complex(t: str) -> bool:
@@ -338,7 +368,24 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
                 append_log(state.task_id, "⚡ [loop] SIMPLE MODE ENGAGED (Immediate Synthesis)")
                 
                 from core.llm import call_llm
-                synth_prompt = f"Synthesize a clear, concise, and helpful answer for the user task based ONLY on the provided grounding facts.\nTask: {task}\nFacts:\n{state.history_text}"
+                synth_prompt = f"""You are a factual data extraction engine. Your job is to answer the user's question using ONLY the data provided below.
+
+STRICT RULES:
+1. Extract and present SPECIFIC data points: scores, numbers, names, dates, prices, temperatures.
+2. NEVER say "visit website X" or "check out X for more info". The user asked YOU for the answer.
+3. If the data contains live scores, present them with team names, scores, overs, and key details.
+4. If the data contains prices, present the exact price with currency.
+5. If the data contains weather, present temperature, conditions, and location.
+6. Format your answer clearly with relevant emojis for readability.
+7. If you truly cannot find specific data in the facts, say what you DID find and be specific.
+8. Cite the source briefly (e.g., "via Cricbuzz" or "per CoinGecko").
+
+User Question: {task}
+
+Retrieved Data:
+{state.history_text}
+
+Now provide a direct, factual answer:"""
                 synth_res = call_llm(synth_prompt, role="fast", task_id=state.task_id)
                 
                 # --- PHASE 43/44/45/46: Confidence Gate & Trust/Constraint Calibration ---
