@@ -4,14 +4,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Sidebar } from './components/Sidebar';
 import { TaskConsole } from './components/TaskConsole';
-import { RightPanel } from './components/RightPanel';
-import { UpgradeModal } from './components/UpgradeModal';
-import { AgentRegistry } from './components/AgentRegistry';
 import { Settings } from './components/Settings';
-import { KnowledgeLedger } from './components/KnowledgeLedger';
-import { GovernanceConsole } from './components/GovernanceConsole';
 import { View } from './types';
 import { motion, AnimatePresence } from 'motion/react';
 import { Cpu, Loader2 } from 'lucide-react';
@@ -56,50 +50,34 @@ export default function App() {
 
   return (
     <div className={cn(
-      "flex h-screen font-sans selection:bg-azure-radiance/30 transition-colors duration-300",
+      "h-screen font-sans selection:bg-azure-radiance/30 transition-colors duration-300",
       theme === 'light' ? "bg-white text-black" : "bg-[#090B1E] text-white"
     )}>
-      <Sidebar 
-        currentView={currentView} 
-        onViewChange={setCurrentView} 
-        theme={theme}
-        onThemeToggle={toggleTheme}
-      />
-      
-      <div className="flex-1 overflow-hidden relative flex">
-        <div className="flex-1 overflow-hidden">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentView}
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
-              className="h-full w-full"
-            >
-              {currentView === 'console' && (
-                <TaskConsole theme={theme} onUpgradeClick={() => setIsUpgradeOpen(true)} />
-              )}
-              {currentView === 'governance' && (
-                <GovernanceConsole theme={theme} />
-              )}
-              {currentView === 'registry' && <AgentRegistry theme={theme} />}
-              {currentView === 'memory' && <KnowledgeLedger theme={theme} />}
-              {currentView === 'settings' && <Settings />}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {currentView === 'console' && (
-          <RightPanel theme={theme} />
-        )}
-      </div>
-
-      <UpgradeModal 
-        isOpen={isUpgradeOpen} 
-        onClose={() => setIsUpgradeOpen(false)} 
-        theme={theme}
-      />
+      <main className="h-full w-full overflow-hidden relative">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentView}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.1 }}
+            className="h-full w-full"
+          >
+            {currentView === 'console' ? (
+              <TaskConsole 
+                theme={theme} 
+                onSettingsClick={() => setCurrentView('settings')}
+                onThemeToggle={toggleTheme}
+              />
+            ) : (
+              <Settings 
+                theme={theme} 
+                onBack={() => setCurrentView('console')} 
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </main>
 
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
