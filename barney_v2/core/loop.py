@@ -143,6 +143,23 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
     run_start_time = time.time()
     print(f"  🚀 [loop] Starting run_task: {task[:50]}")
     MAX_WAIT = 300 # 5 minutes
+    
+    # --- Conversational Bypass (Phase 50) ---
+    t_lower = task.lower().strip()
+    t_clean = re.sub(r"[^\w\s]", "", t_lower)
+    greetings = {"hi", "hello", "hey", "who are you", "what are you", "sup", "greetings"}
+    if t_clean in greetings:
+        print(f"  👋 [loop] Conversational shortcut triggered for: {task}")
+        from redis_client import append_log
+        if task_id: append_log(task_id, "👋 [loop] Conversational shortcut handled.")
+        return {
+            "status": "DONE",
+            "answer": "Hello! I am Barney, your autonomous AI assistant. How can I help you today?",
+            "confidence": 1.0,
+            "steps": 0,
+            "tools_used": 0,
+            "response_time_ms": int((time.time() - run_start_time) * 1000)
+        }
 
     # 1. Initialize or Resume State (Phase 31: Reliability & Replay)
     from redis_client import get_task, update_task, append_log, record_model_experience
