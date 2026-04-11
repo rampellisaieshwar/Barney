@@ -241,6 +241,26 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
         grounding_data = get_grounding_requirement(task, task_id=state.task_id)
         state.grounding_data = grounding_data
         
+        # 1.6 Semantic Override Logic (Requirement #1, #2, #4)
+        task_nature = grounding_data.get("task_nature", "FACTUAL")
+        grounding_req = grounding_data.get("required_grounding", "NONE")
+        
+        # FULL OVERRIDE: Generative tasks with stable context
+        state.is_generative_override = (
+            task_nature == "GENERATIVE" and 
+            grounding_req in ["NONE", "ARCHIVAL"]
+        )
+        
+        # PARTIAL OVERRIDE: Hybrid tasks with stable context (Requirement #1 fix)
+        state.is_hybrid_fallback = (
+            task_nature == "HYBRID" and 
+            grounding_req in ["NONE", "ARCHIVAL"]
+        )
+        
+        if state.is_generative_override:
+            print(f"  🧠 [MODE] GENERATIVE OVERRIDE (SEMANTIC) engaged for: {task[:30]}...")
+            append_log(state.task_id, "🧠 [MODE] GENERATIVE OVERRIDE (SEMANTIC) engaged")
+        
         # Mandatory Pre-Search Grounding
         if grounding_data.get("required_grounding") in ["REAL_TIME", "RECENT"]:
             print(f"  ⚡ [loop] REAL_TIME intent detected. Triggering mandatory grounding search.")
@@ -452,12 +472,12 @@ Now provide a direct, factual answer:"""
                 is_juicy = is_signal_juicy(state.history_text, task, grounding_req, task_id=state.task_id)
                 
                 bypass = False
-                if is_juicy:
-                    print(f"  💎 [loop] JUICY SIGNAL DETECTED | Trust & Constraint Verified.")
-                    append_log(state.task_id, "💎 [loop] JUICY SIGNAL DETECTED (Calibrated)")
+                if is_juicy or state.is_generative_override:
+                    print(f"  💎 [loop] SIGNAL BYPASS | Reason: {'GENERATIVE' if state.is_generative_override else 'JUICY'}")
+                    append_log(state.task_id, f"💎 [loop] SIGNAL BYPASS ({'GENERATIVE' if state.is_generative_override else 'JUICY'})")
                     if confidence < 0.5:
-                        print(f"  🛡️ [loop] CONFIDENCE BYPASSED (signal override: {confidence})")
-                        append_log(state.task_id, f"🛡️ [loop] CONFIDENCE BYPASSED (signal override: {confidence})")
+                        print(f"  🛡️ [loop] CONFIDENCE BYPASSED (override: {confidence})")
+                        append_log(state.task_id, f"🛡️ [loop] CONFIDENCE BYPASSED (override: {confidence})")
                         bypass = True
 
                 if confidence < 0.5 and not bypass:
@@ -468,6 +488,11 @@ Now provide a direct, factual answer:"""
                     append_log(state.task_id, "🏁 [loop] SIMPLE MODE FALLBACK (Terminal Honesty)")
                 else:
                     state.result = synth_res.get("content", "I found the data but encountered an error during synthesis.")
+                    # Requirement #3: Calibrate confidence
+                    if state.is_generative_override:
+                        state.final_confidence = max(confidence, 0.6)
+                    else:
+                        state.final_confidence = confidence
                 
                 state.status = "COMPLETED"
             else:
@@ -520,25 +545,45 @@ Now provide a direct, factual answer:"""
                 print(f"  🛑 [planner] Insufficient Confidence: {res_plan.get('reason')}")
                 state.status = "INSUFFICIENT_CONFIDENCE"
                 state.result = f"I cannot proceed with high confidence. Reason: {res_plan.get('reason')}"
-                return _standardize_final_return("failed", f"I cannot proceed with high confidence. Reason: {res_plan.get('reason')}", confidence=0.0, run_start_time=run_start_time)
 
-            if not state.plan:
+            if not state.plan and state.status == "PLANNING":
                 print("  🚨 [planner] Error: Planner generated an empty plan.")
                 state.status = "FAILED"
-                return _standardize_final_return("failed", "Planner failed to generate tactical steps.", confidence=0.0, run_start_time=run_start_time)
 
-            state.strategy_type = strategy_info.get("suggested_strategy", "explore")
-            state.constraints = {}
-            state.status = "EXECUTING"
-            print(f"  🧠 [planner] Iteration {state.replan_counter} | Steps: {len(state.plan)}")
-
-    # 3. Exit early if rejected or timeout (Chaos Guard)
-    if state.status in ["REJECTED_TIMEOUT", "FAILED"]:
-        return _standardize_final_return("failed", "Governance rejection or safety timeout triggered.", run_start_time=run_start_time)
+            if state.status == "PLANNING":
+                state.strategy_type = strategy_info.get("suggested_strategy", "explore")
+                state.constraints = {}
+                state.status = "EXECUTING"
+                print(f"  🧠 [planner] Iteration {state.replan_counter} | Steps: {len(state.plan)}")
+            
+    # 3.5 Escape Hatch / Fallback Trigger (Requirement #2 - Deterministic Fallback)
+    planner_failed = (
+        not state.plan or 
+        state.final_confidence < 0.5 or 
+        state.status in ["FAILED", "INSUFFICIENT_CONFIDENCE"]
+    )
     
-    # 3.5 Insufficient Confidence Exit (Phase 11.5)
-    if state.status == "INSUFFICIENT_CONFIDENCE":
-        return _standardize_final_return("failed", "System self-identified ambiguity threshold breach.", confidence=0.0, run_start_time=run_start_time)
+    if (state.is_generative_override or state.is_hybrid_fallback) and planner_failed:
+        print(f"  🚀 [MODE] GENERATIVE FALLBACK TRIGGERED | Reason: {'FAILED' if not state.plan else 'UNCONFIDENT'}")
+        append_log(state.task_id, f"🚀 [MODE] GENERATIVE FALLBACK TRIGGERED ({'FAILED' if not state.plan else 'UNCONFIDENT'})")
+        
+        # Force Direct LLM Synthesis
+        from core.llm import call_llm
+        fallback_prompt = f"You are Barney, an expert reasoning agent. Answer the following request using your internal knowledge. Provide a comprehensive, high-quality response.\n\nTask: {task}"
+        if state.history_text:
+            fallback_prompt += f"\n\nContext:\n{state.history_text}"
+            
+        fallback_res = call_llm(fallback_prompt, role="strong", task_id=state.task_id)
+        state.result = fallback_res.get("content", "I encountered an error during fallback synthesis.")
+        state.final_confidence = max(fallback_res.get("confidence", 0.6), 0.6)
+        state.status = "COMPLETED"
+        print(f"  🏁 [fallback] Synthesis complete. Confidence: {state.final_confidence}")
+        append_log(state.task_id, f"🏁 Fallback synthesis complete. Confidence: {state.final_confidence}")
+
+    # 3.6 Exit early if rejected or timeout (Chaos Guard)
+    if state.status in ["REJECTED_TIMEOUT", "FAILED", "INSUFFICIENT_CONFIDENCE"]:
+        if not (state.is_generative_override and state.status == "INSUFFICIENT_CONFIDENCE"):
+             return _standardize_final_return("failed", state.result or "Governance rejection or safety timeout triggered.", run_start_time=run_start_time)
 
     # 4. Governed Execution Loop
     # Phase 37: Production-Grade Idempotency
