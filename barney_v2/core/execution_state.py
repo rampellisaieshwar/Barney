@@ -27,6 +27,7 @@ class ExecutionState:
         self.strategy_info = {}
         self.grounding_data = {}
         self.confidence = 0.0
+        self.meta = {}
 
     def to_dict(self):
         return self.__dict__

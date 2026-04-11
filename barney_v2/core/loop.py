@@ -486,12 +486,16 @@ Now provide a direct, factual answer:"""
                     state.result = HONEST_FAILURE
                     print(f"  🏁 [loop] SIMPLE MODE FALLBACK (Terminal Honesty)")
                     append_log(state.task_id, "🏁 [loop] SIMPLE MODE FALLBACK (Terminal Honesty)")
+                    state.meta["fallback_reason"] = "low_confidence_synthesis"
                 else:
+                    state.result = synth_res.get("content", "I found the data but encountered an error during synthesis.")
                     # Requirement #3: Calibrate confidence
                     if state.is_generative_override:
                         state.confidence = max(confidence, 0.6)
+                        state.meta["confidence_type"] = "fallback_synthesis"
                     else:
                         state.confidence = confidence
+                        state.meta["confidence_type"] = "normal"
                 
                 state.status = "COMPLETED"
             else:
@@ -563,9 +567,22 @@ Now provide a direct, factual answer:"""
     )
     
     if (state.is_generative_override or state.is_hybrid_fallback) and planner_failed:
+        # Refinement: Double Synthesis Guard
+        if state.result:
+             print(f"  🛑 [loop] Fallback skipped: Task already has result.")
+             return _standardize_final_return("DONE", state.result, confidence=state.confidence, run_start_time=run_start_time, history=state.history, meta=state.meta)
+
         print(f"  🚀 [MODE] GENERATIVE FALLBACK TRIGGERED | Reason: {'FAILED' if not state.plan else 'UNCONFIDENT'}")
         append_log(state.task_id, f"🚀 [MODE] GENERATIVE FALLBACK TRIGGERED ({'FAILED' if not state.plan else 'UNCONFIDENT'})")
         
+        # Refinement: Forensic Metadata (Requirement #1)
+        state.meta["fallback_reason"] = {
+            "plan_empty": not state.plan,
+            "low_confidence": state.confidence < 0.5,
+            "status": state.status
+        }
+        print(f"  [DEBUG] FALLBACK REASON: {json.dumps(state.meta['fallback_reason'])}")
+
         # Force Direct LLM Synthesis
         from core.llm import call_llm
         fallback_prompt = f"You are Barney, an expert reasoning agent. Answer the following request using your internal knowledge. Provide a comprehensive, high-quality response.\n\nTask: {task}"
@@ -575,6 +592,7 @@ Now provide a direct, factual answer:"""
         fallback_res = call_llm(fallback_prompt, role="strong", task_id=state.task_id)
         state.result = fallback_res.get("content", "I encountered an error during fallback synthesis.")
         state.confidence = max(fallback_res.get("confidence", 0.6), 0.6)
+        state.meta["confidence_type"] = "fallback" # Requirement #3
         state.status = "COMPLETED"
         print(f"  🏁 [fallback] Synthesis complete. Confidence: {state.confidence}")
         append_log(state.task_id, f"🏁 Fallback synthesis complete. Confidence: {state.confidence}")
@@ -930,8 +948,9 @@ Now provide a direct, factual answer:"""
     return _standardize_final_return(
         "DONE", 
         state.result, 
-        confidence=state.final_confidence, 
+        confidence=state.confidence, 
         run_start_time=run_start_time,
         history=state.history,
+        meta=state.meta,
         quality_metrics=result_data
     )
