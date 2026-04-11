@@ -487,12 +487,11 @@ Now provide a direct, factual answer:"""
                     print(f"  🏁 [loop] SIMPLE MODE FALLBACK (Terminal Honesty)")
                     append_log(state.task_id, "🏁 [loop] SIMPLE MODE FALLBACK (Terminal Honesty)")
                 else:
-                    state.result = synth_res.get("content", "I found the data but encountered an error during synthesis.")
                     # Requirement #3: Calibrate confidence
                     if state.is_generative_override:
-                        state.final_confidence = max(confidence, 0.6)
+                        state.confidence = max(confidence, 0.6)
                     else:
-                        state.final_confidence = confidence
+                        state.confidence = confidence
                 
                 state.status = "COMPLETED"
             else:
@@ -559,7 +558,7 @@ Now provide a direct, factual answer:"""
     # 3.5 Escape Hatch / Fallback Trigger (Requirement #2 - Deterministic Fallback)
     planner_failed = (
         not state.plan or 
-        state.final_confidence < 0.5 or 
+        state.confidence < 0.5 or 
         state.status in ["FAILED", "INSUFFICIENT_CONFIDENCE"]
     )
     
@@ -575,10 +574,10 @@ Now provide a direct, factual answer:"""
             
         fallback_res = call_llm(fallback_prompt, role="strong", task_id=state.task_id)
         state.result = fallback_res.get("content", "I encountered an error during fallback synthesis.")
-        state.final_confidence = max(fallback_res.get("confidence", 0.6), 0.6)
+        state.confidence = max(fallback_res.get("confidence", 0.6), 0.6)
         state.status = "COMPLETED"
-        print(f"  🏁 [fallback] Synthesis complete. Confidence: {state.final_confidence}")
-        append_log(state.task_id, f"🏁 Fallback synthesis complete. Confidence: {state.final_confidence}")
+        print(f"  🏁 [fallback] Synthesis complete. Confidence: {state.confidence}")
+        append_log(state.task_id, f"🏁 Fallback synthesis complete. Confidence: {state.confidence}")
 
     # 3.6 Exit early if rejected or timeout (Chaos Guard)
     if state.status in ["REJECTED_TIMEOUT", "FAILED", "INSUFFICIENT_CONFIDENCE"]:

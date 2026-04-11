@@ -26,6 +26,7 @@ class ExecutionState:
         self.strategy_type = "explore"
         self.strategy_info = {}
         self.grounding_data = {}
+        self.confidence = 0.0
 
     def to_dict(self):
         return self.__dict__
