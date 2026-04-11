@@ -21,13 +21,61 @@ export const api = {
       const { task_id } = await startRes.json();
 
       // 2. Open WebSocket
-      const wsBase = (import.meta.env.VITE_API_BASE || '/api')
-        .replace(/^https?/, (m: string) => m === 'https' ? 'wss' : 'ws')
-        .replace('/api', '');
+      const apiBase = import.meta.env.VITE_API_BASE || '/api';
+      const wsBase = apiBase
+        .replace(/^http:/, 'ws:')
+        .replace(/^https:/, 'wss:');
       
-      const ws = new WebSocket(`${wsBase}/ws/${task_id}`);
+      let ws: WebSocket;
+      try {
+        ws = new WebSocket(`${wsBase}/ws/${task_id}`);
+      } catch (e) {
+        console.warn('WebSocket failed, falling back to polling');
+        ws = null as any;
+      }
 
-      // 3. Stream via async generator
+      // If WebSocket not available, fall back to polling
+      if (!ws || ws.readyState === WebSocket.CLOSED) {
+        let isDone = false;
+        let lastLogsCount = 0;
+        while (!isDone) {
+          await new Promise(r => setTimeout(r, 2000));
+          const statusRes = await fetch(`${apiBase}/status/${task_id}`);
+          if (!statusRes.ok) continue;
+          const data = await statusRes.json();
+          const logs = data.logs || [];
+          for (let i = lastLogsCount; i < logs.length; i++) {
+            yield {
+              id: `${task_id}-log-${i}`,
+              title: logs[i].substring(0, 60),
+              description: logs[i],
+              status: 'completed' as const,
+              stage: 'explore' as const,
+              risk: { score: 0, level: 'low' as const, reasoning: 'log' },
+              requiresApproval: false
+            };
+          }
+          lastLogsCount = logs.length;
+          if (data.status === 'DONE' || data.status === 'FAILED') {
+            isDone = true;
+            const answer = data.answer || data.result?.answer || '';
+            if (answer) {
+              yield {
+                id: `${task_id}-answer`,
+                title: 'Final Answer',
+                description: answer,
+                status: 'completed' as const,
+                stage: 'validate' as const,
+                risk: { score: 0, level: 'low' as const, reasoning: `Confidence: ${data.confidence}` },
+                requiresApproval: false
+              };
+            }
+          }
+        }
+        return;
+      }
+
+      // 3. Stream via async generator (WebSocket path)
       const queue: any[] = [];
       let done = false;
       let resolveNext: (() => void) | null = null;
