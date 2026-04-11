@@ -18,7 +18,7 @@ def is_agent_mode_on(user_id: str) -> bool:
     try:
         from redis_client import redis_client
         val = redis_client.get(AGENT_MODE_KEY.format(user_id=user_id))
-        return val == b"on"
+        return val == "on"
     except Exception:
         return False
 
