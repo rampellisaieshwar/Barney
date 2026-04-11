@@ -172,7 +172,8 @@ def start_worker():
                         "confidence": 0.0,
                         "steps": 0,
                         "tools_used": 0,
-                        "response_time_ms": 0
+                        "response_time_ms": 0,
+                        "meta": {} # Logic could be added here to extract meta from local state if available
                     }
                     update_task(task_id, "FAILED", error_result, worker_id=WORKER_ID, user_id=user_id)
                 finally:
