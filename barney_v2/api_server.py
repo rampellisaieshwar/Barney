@@ -63,6 +63,7 @@ def _flatten_task_response(data: dict) -> dict:
         "updated_at": data.get("updated_at"),
         "worker_id": data.get("worker_id"),
         "user_id": data.get("user_id"),
+        "meta": data.get("result", {}).get("meta") if isinstance(data.get("result"), dict) else {}
     }
     
     result = data.get("result")

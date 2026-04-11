@@ -257,6 +257,8 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
             grounding_req in ["NONE", "ARCHIVAL"]
         )
         
+        state.meta["confidence_type"] = "normal"
+        
         if state.is_generative_override:
             print(f"  🧠 [MODE] GENERATIVE OVERRIDE (SEMANTIC) engaged for: {task[:30]}...")
             append_log(state.task_id, "🧠 [MODE] GENERATIVE OVERRIDE (SEMANTIC) engaged")
