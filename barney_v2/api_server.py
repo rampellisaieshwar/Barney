@@ -38,6 +38,47 @@ def health():
     """Simple health check endpoint."""
     return {"status": "ok"}
 
+def _flatten_task_response(data: dict) -> dict:
+    """PIPELINE CONTRACT: Ensures API responses always have 'answer' at top level.
+    Redis stores: {"status": "DONE", "result": {"answer": "...", ...}, ...}
+    API returns:  {"status": "DONE", "answer": "...", "confidence": ..., ...}
+    """
+    if not data:
+        return data
+    
+    response = {
+        "task_id": data.get("task_id"),
+        "status": data.get("status"),
+        "logs": data.get("logs", []),
+        "updated_at": data.get("updated_at"),
+        "worker_id": data.get("worker_id"),
+        "user_id": data.get("user_id"),
+    }
+    
+    result = data.get("result")
+    
+    if isinstance(result, dict):
+        # Extract from flat result dict: {"answer": "...", "confidence": ...}
+        answer = result.get("answer", "")
+        # Defensive: if answer is STILL a dict, stringify it
+        if not isinstance(answer, str):
+            answer = json.dumps(answer) if answer else "No answer generated."
+        response["answer"] = answer
+        response["confidence"] = result.get("confidence", 0.0)
+        response["steps"] = result.get("steps", 0)
+        response["tools_used"] = result.get("tools_used", 0)
+        response["response_time_ms"] = result.get("response_time_ms", 0)
+    elif isinstance(result, str):
+        # Legacy: result stored as raw string
+        response["answer"] = result
+        response["confidence"] = 0.0
+    else:
+        # No result yet (PENDING/RUNNING)
+        response["answer"] = None
+        response["confidence"] = None
+    
+    return response
+
 class TaskRequest(BaseModel):
     task: str
     user_id: str # Required in Phase 29
@@ -95,11 +136,12 @@ def get_status(task_id: str):
             from redis_client import update_task, append_log
             error_msg = "🚨 System failure: Task heartbeat lost (Worker timeout/crash)."
             append_log(task_id, error_msg)
-            update_task(task_id, "FAILED", {"error": "worker_timeout"})
+            update_task(task_id, "FAILED", {"answer": error_msg, "confidence": 0.0})
             # Return updated data
-            return get_task(task_id)
+            data = get_task(task_id)
 
-    return data
+    # PIPELINE CONTRACT: Flatten response - extract answer from result to top level
+    return _flatten_task_response(data)
 
 async def stream_task_generator(task_id: str):
     """Event generator for Server-Sent Events (SSE). 
@@ -124,6 +166,11 @@ async def stream_task_generator(task_id: str):
                 "logs": new_logs,
                 "full_count": len(logs)
             }
+            # PIPELINE CONTRACT: Include answer in terminal SSE events
+            if status in ["DONE", "FAILED"]:
+                flat = _flatten_task_response(state)
+                payload["answer"] = flat.get("answer")
+                payload["confidence"] = flat.get("confidence")
             yield f"data: {json.dumps(payload)}\n\n"
             last_len = len(logs)
             

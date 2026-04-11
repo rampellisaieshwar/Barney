@@ -3,167 +3,6 @@
     "file": "knowledge_ledger.json",
     "action": "LEDGER_UPDATE",
     "size": 23,
-    "intent": "Persisting verified insight: Task 53",
-    "timestamp": 1775583662322543000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 54",
-    "timestamp": 1775583662323799000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 22,
-    "intent": "Persisting verified insight: Task 0",
-    "timestamp": 1775583683399598000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 22,
-    "intent": "Persisting verified insight: Task 1",
-    "timestamp": 1775583683400667000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 22,
-    "intent": "Persisting verified insight: Task 2",
-    "timestamp": 1775583683401582000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 22,
-    "intent": "Persisting verified insight: Task 3",
-    "timestamp": 1775583683402535000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 22,
-    "intent": "Persisting verified insight: Task 4",
-    "timestamp": 1775583683403473000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 22,
-    "intent": "Persisting verified insight: Task 5",
-    "timestamp": 1775583683404628000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 22,
-    "intent": "Persisting verified insight: Task 6",
-    "timestamp": 1775583683405729000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 22,
-    "intent": "Persisting verified insight: Task 7",
-    "timestamp": 1775583683406804000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 22,
-    "intent": "Persisting verified insight: Task 8",
-    "timestamp": 1775583683407928000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 22,
-    "intent": "Persisting verified insight: Task 9",
-    "timestamp": 1775583683409094000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 10",
-    "timestamp": 1775583683410399000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 11",
-    "timestamp": 1775583683411721000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 12",
-    "timestamp": 1775583683413044000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 13",
-    "timestamp": 1775583683414237000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 14",
-    "timestamp": 1775583683415600000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 15",
-    "timestamp": 1775583683417056000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 16",
-    "timestamp": 1775583683418477000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 17",
-    "timestamp": 1775583683419790000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 18",
-    "timestamp": 1775583683421790000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 19",
-    "timestamp": 1775583683424004000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
-    "intent": "Persisting verified insight: Task 20",
-    "timestamp": 1775583683425341000
-  },
-  {
-    "file": "knowledge_ledger.json",
-    "action": "LEDGER_UPDATE",
-    "size": 23,
     "intent": "Persisting verified insight: Task 21",
     "timestamp": 1775583683426904000
   },
@@ -698,5 +537,166 @@
     "size": 500,
     "intent": "Persisting verified insight: Explain black holes in simple terms",
     "timestamp": 1775844400058863000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: weather today in Hyderabad",
+    "timestamp": 1775900337835180000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 347,
+    "intent": "Persisting verified insight: who won yesterday IPL match",
+    "timestamp": 1775900524602174000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: latest AI news",
+    "timestamp": 1775900559850530000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: who won yesterday IPL match",
+    "timestamp": 1775900775760890000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 266,
+    "intent": "Persisting verified insight: weather today in Hyderabad",
+    "timestamp": 1775900790610153000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: latest AI news",
+    "timestamp": 1775901119908138000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_COMPRESSION",
+    "size": 0,
+    "intent": "Pruning low-value data to prevent noise explosion",
+    "timestamp": 1775901134078116000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 83,
+    "intent": "Persisting verified insight: weather today in Hyderabad",
+    "timestamp": 1775901134079114000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 388,
+    "intent": "Persisting verified insight: who won yesterday IPL match",
+    "timestamp": 1775901212251273000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 83,
+    "intent": "Persisting verified insight: weather in Hyderabad today",
+    "timestamp": 1775901216991128000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 83,
+    "intent": "Persisting verified insight: weather today in Hyderabad",
+    "timestamp": 1775901253578359000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: Analyze the impact of AI on job markets",
+    "timestamp": 1775901355534302000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 81,
+    "intent": "Persisting verified insight: weather today in Hyderabad",
+    "timestamp": 1775901707904414000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 81,
+    "intent": "Persisting verified insight: weather in Hyderabad today",
+    "timestamp": 1775901724799642000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: latest AI news",
+    "timestamp": 1775902264186914000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 81,
+    "intent": "Persisting verified insight: weather today in Hyderabad",
+    "timestamp": 1775902265463198000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 81,
+    "intent": "Persisting verified insight: get me the current bitcoin price in USD",
+    "timestamp": 1775902678217128000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 279,
+    "intent": "Persisting verified insight: weather today in Hyderabad",
+    "timestamp": 1775902697866580000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: who won yesterday IPL match",
+    "timestamp": 1775902709921672000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: Analyze the impact of AI on job markets",
+    "timestamp": 1775902838791772000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 36,
+    "intent": "Persisting verified insight: what is 2+2",
+    "timestamp": 1775907789156549000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: bitcoin price now",
+    "timestamp": 1775907793834628000
+  },
+  {
+    "file": "knowledge_ledger.json",
+    "action": "LEDGER_UPDATE",
+    "size": 500,
+    "intent": "Persisting verified insight: weather in Hyderabad today",
+    "timestamp": 1775907795735152000
   }
 ]

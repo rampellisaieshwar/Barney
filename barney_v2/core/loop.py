@@ -136,6 +136,27 @@ def _generate_step_id(task_id: str, step_text: str, replan_counter: int) -> str:
     raw = f"{task_id}_{norm}_{replan_counter}"
     return hashlib.md5(raw.encode()).hexdigest()[:12]
 
+def _ensure_str_answer(answer) -> str:
+    """PIPELINE CONTRACT: Guarantees answer is ALWAYS a plain string.
+    Handles dicts, lists, None, and nested structures."""
+    if answer is None:
+        return "No answer was generated."
+    if isinstance(answer, str):
+        return answer
+    if isinstance(answer, dict):
+        # Extract from common nested patterns
+        if "answer" in answer:
+            return _ensure_str_answer(answer["answer"])
+        if "content" in answer:
+            return _ensure_str_answer(answer["content"])
+        if "result" in answer:
+            return _ensure_str_answer(answer["result"])
+        # Last resort: JSON stringify
+        return json.dumps(answer, indent=2)
+    if isinstance(answer, list):
+        return json.dumps(answer, indent=2)
+    return str(answer)
+
 def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: bool = False, forced_outcome: dict = None, task_id: str = None) -> dict:
     """
     Hardened Step-by-Step Governed Loop (Phase 12.5).
@@ -154,7 +175,7 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
         if task_id: append_log(task_id, "👋 [loop] Conversational shortcut handled.")
         return {
             "status": "DONE",
-            "answer": "Hello! I am Barney, your autonomous AI assistant. How can I help you today?",
+            "answer": _ensure_str_answer("Hello! I am Barney, your autonomous AI assistant. How can I help you today?"),
             "confidence": 1.0,
             "steps": 0,
             "tools_used": 0,
@@ -465,8 +486,11 @@ Now provide a direct, factual answer:"""
                 state.save()
                 return {
                     "status": "failed",
-                    "result": {"status": "BRAIN_DEAD", "reason": res_plan.get("error")},
-                    "state": state.to_dict()
+                    "answer": _ensure_str_answer(f"Brain disconnected: {res_plan.get('error')}"),
+                    "confidence": 0.0,
+                    "steps": 0,
+                    "tools_used": 0,
+                    "response_time_ms": int((time.time() - run_start_time) * 1000)
                 }
 
             state.plan = res_plan.get("steps", [])
@@ -477,8 +501,11 @@ Now provide a direct, factual answer:"""
                 state.result = f"I cannot proceed with high confidence. Reason: {res_plan.get('reason')}"
                 return {
                     "status": "failed",
-                    "result": {"status": "INSUFFICIENT_CONFIDENCE", "reason": res_plan.get("reason")},
-                    "state": state.to_dict()
+                    "answer": _ensure_str_answer(f"I cannot proceed with high confidence. Reason: {res_plan.get('reason')}"),
+                    "confidence": 0.0,
+                    "steps": 0,
+                    "tools_used": 0,
+                    "response_time_ms": int((time.time() - run_start_time) * 1000)
                 }
 
             if not state.plan:
@@ -486,8 +513,11 @@ Now provide a direct, factual answer:"""
                 state.status = "FAILED"
                 return {
                     "status": "failed",
-                    "result": {"status": "FAILED", "reason": "Planner failed to generate tactical steps."},
-                    "state": state.to_dict()
+                    "answer": _ensure_str_answer("Planner failed to generate tactical steps."),
+                    "confidence": 0.0,
+                    "steps": 0,
+                    "tools_used": 0,
+                    "response_time_ms": int((time.time() - run_start_time) * 1000)
                 }
 
             state.strategy_type = strategy_info.get("suggested_strategy", "explore")
@@ -499,16 +529,22 @@ Now provide a direct, factual answer:"""
     if state.status in ["REJECTED_TIMEOUT", "FAILED"]:
         return {
             "status": "failed",
-            "result": {"status": state.status, "reason": "Governance rejection or safety timeout triggered."},
-            "state": state.to_dict()
+            "answer": _ensure_str_answer("Governance rejection or safety timeout triggered."),
+            "confidence": 0.0,
+            "steps": 0,
+            "tools_used": 0,
+            "response_time_ms": int((time.time() - run_start_time) * 1000)
         }
     
     # 3.5 Insufficient Confidence Exit (Phase 11.5)
     if state.status == "INSUFFICIENT_CONFIDENCE":
         return {
             "status": "failed",
-            "result": {"status": "INSUFFICIENT_CONFIDENCE", "reason": "System self-identified ambiguity threshold breach."},
-            "state": state.to_dict()
+            "answer": _ensure_str_answer("System self-identified ambiguity threshold breach."),
+            "confidence": 0.0,
+            "steps": 0,
+            "tools_used": 0,
+            "response_time_ms": int((time.time() - run_start_time) * 1000)
         }
 
     # 4. Governed Execution Loop
@@ -726,7 +762,7 @@ Now provide a direct, factual answer:"""
             state.status = "BRAIN_DEAD"
             state.result = f"Brain disconnected mid-execution: {res.get('error')}"
             state.save()
-            return { "status": "failed", "result": {"status": "BRAIN_DEAD", "reason": res.get("error")}, "state": state.to_dict() }
+            return { "status": "failed", "answer": _ensure_str_answer(state.result), "confidence": 0.0, "steps": len(state.history), "tools_used": 0, "response_time_ms": int((time.time() - run_start_time) * 1000) }
         else:
             print(f"  🚨 [loop] Step execution failed: {res.get('reason')}")
             state.status = "FAILED"
@@ -762,6 +798,11 @@ Now provide a direct, factual answer:"""
 
     state.final_confidence = confidence
         
+    # PIPELINE CONTRACT: Enforce string answer at terminal assembly
+    state.result = _ensure_str_answer(state.result)
+    print(f"  [FINAL] Answer type: {type(state.result).__name__}")
+    print(f"  [FINAL] Answer preview: {str(state.result)[:100]}")
+    
     result_data = {
         "status": "DONE",
         "answer": state.result,
@@ -845,7 +886,7 @@ Now provide a direct, factual answer:"""
     print("🏁 FINAL RESULT:", result_data)
     return {
         "status": "DONE",
-        "answer": state.result,
+        "answer": _ensure_str_answer(state.result),
         "confidence": state.final_confidence,
         "steps": len(state.history),
         "tools_used": sum(h.get("tool_calls", 0) for h in state.history if isinstance(h, dict)),

@@ -49,14 +49,35 @@ export const api = {
         
         if (data.status === 'DONE' || data.status === 'FAILED') {
            isDone = true;
-           if (data.result && data.result.answer) {
+           
+           // PIPELINE CONTRACT: Extract answer with defensive fallbacks
+           // Priority: data.answer (new flat) > data.result.answer (legacy nested) > data.result (raw string)
+           let answer: string | null = null;
+           
+           if (typeof data.answer === 'string' && data.answer) {
+             answer = data.answer;
+           } else if (data.result && typeof data.result === 'object' && data.result.answer) {
+             answer = typeof data.result.answer === 'string' 
+               ? data.result.answer 
+               : JSON.stringify(data.result.answer);
+           } else if (typeof data.result === 'string' && data.result) {
+             answer = data.result;
+           }
+           
+           console.log("[BARNEY DEBUG] API Response:", JSON.stringify(data).substring(0, 500));
+           console.log("[BARNEY DEBUG] Extracted answer:", answer?.substring(0, 200));
+           
+           const confidence = data.confidence ?? data.result?.confidence ?? 0;
+           const responseTime = data.response_time_ms ?? data.result?.response_time_ms ?? 0;
+           
+           if (answer) {
              yield {
                 id: `${task_id}-answer`,
                 title: 'Final Answer',
-                description: data.result.answer,
+                description: answer,
                 status: 'completed',
                 stage: 'validate',
-                risk: { score: 0, level: 'low', reasoning: `Confidence: ${data.result.confidence}, Time: ${data.result.response_time_ms}ms` },
+                risk: { score: 0, level: 'low' as const, reasoning: `Confidence: ${confidence}, Time: ${responseTime}ms` },
                 requiresApproval: false
              };
            }

@@ -1,0 +1,316 @@
+  💾 [memory] Loaded 50 insight(s).
+--- DEBUG TRACE STARTS ---
+
+======================================
+QUERY: hi
+======================================
+  🚀 [loop] Starting run_task: hi
+  👋 [loop] Conversational shortcut triggered for: hi
+--- RESULT ---
+{'status': 'DONE', 'answer': 'Hello! I am Barney, your autonomous AI assistant. How can I help you today?', 'confidence': 1.0, 'steps': 0, 'tools_used': 0, 'response_time_ms': 0}
+
+======================================
+QUERY: what is 2+2
+======================================
+  🚀 [loop] Starting run_task: what is 2+2
+  🧠 [preprocessor] Analyzing intent for: what is 2+2...
+🔥 ENTERING get_client: Initializing Groq client
+  ⚠️ [llm] Warning: Task 76939212 not found in Redis. Using default budget.
+  🧠 [llm] Success (0.37s, 338 tokens, $1.9e-05)
+  🧠 [llm] Returning successful response dict.
+  🧠 [preprocessor] Grounding: NONE | Facts: 0
+  🚀 [loop] DEEP MODE ENGAGED | Strategic reasoning loop required.
+  🧩 [embeddings] Loading sentence-transformer (all-MiniLM-L6-v2)...
+  🚨 [embeddings] Embedding failure: No module named 'sentence_transformers'
+  🧠 [planner] Generating plan for: what is 2+2...
+🧠 PLANNER INPUT: Task: what is 2+2
+PriorContext: 
+  🧠 [planner] Sending request to LLM (Role: Strong)...
+  🧠 [router] 8b Quality Yield (100.0%) is high for 'general'. Optimizing.
+  🧠 [llm] Success (6.28s, 489 tokens, $2.8e-05)
+  🧠 [llm] Returning successful response dict.
+  🧠 [planner] call_llm returned: <class 'dict'>
+🧠 PLANNER OUTPUT: {
+  "status": "OK",
+  "reason": "",
+  "knowledge_audit": {
+    "internal_facts": "I know basic arithmetic operations, including addition",
+    "missing_facts": []
+  },
+  "strategy": "validate",
+  "constraints": {
+    "min_steps": 1,
+    "require_evidence": false,
+    "structure": "arithmetic"
+  },
+  "steps": [
+    "Validate the equation 2+2 using basic arithmetic rules"
+  ],
+  "Confidence": 1.0
+}
+  🧠 [planner] Received LLM response (len=399) | Confidence: 0.9
+  🧠 [planner] Iteration 0 | Steps: 1
+  🛡️ [risk] Step 1: LOW (Comp: 0.0) - Low-risk operation
+  ⚙️ [executor] Step 1/1: Validate the equation 2+2 using basic arithmetic rules
+⚙️ EXECUTOR INPUT: Task: what is 2+2
+Planned Step 1: Validate the equation 2+2 using basic arithmetic rules
+Current Step: 1 of 1
+Successful History: 
+
+You are the EXECUTOR. You MUST follow the provided plan strictly.
+Output STRICT JSON:
+{
+  "action": "tool" | "final",
+  "justification": {
+    "intent": "Why this step is needed",
+    "expected_outcome": "What should happen (Specific/Measurable)",
+    "risk_reason": "Why this risk is acceptable",
+    "alternatives": ["Other possible approaches"]
+  },
+  "tool": "search" | "python" | "http_fetch" | "get_time" | "list_dir" | "read_file" | "write_file",
+  "input": "JSON dictionary e.g., {'code': '...'} or {'url': '...'} or {'query': '...'}",
+  "answer": "your final response if action=final"
+}
+
+Tactical Rules:
+- FILESYSTEM: ALWAYS provide JSON for write_file: {"filename": "secret.txt", "content": "data"}.
+- TOOL PRIORITY: Use 'write_file' for saving data. NEVER use 'python' for 'os.' or 'open()'.
+- PROGRESSION: Your tool input MUST be unique and more specific than previous steps.
+- NO REPETITION: Do NOT use exactly same search/file inputs as previous steps in 'History'.
+- EVIDENCE: If using a tool, refine the query to target missing details.
+- CONSTRAINTS: Must satisfy: {}
+- FINALITY: If step is 'Final' or 'Synthesize', use action='final' with a detailed answer.
+- KNOWLEDGE: If tools cannot help, you MUST answer from your own knowledge using action='final'.
+
+
+🚨 CRITICAL: This is the FINAL/SYNTHESIS step. You MUST use action='final' and provide a complete, well-structured answer in the 'answer' field. Do NOT call any tools. Synthesize everything you know into a clear response.
+
+  🧠 [router] 8b Quality Yield (100.0%) is high for 'general'. Optimizing.
+  🧠 [llm] Success (2.43s, 627 tokens, $3.5e-05)
+  🧠 [llm] Returning successful response dict.
+    🧠 [executor] call_llm returned: <class 'dict'>
+⚙️ EXECUTOR OUTPUT: {'status': 'success', 'executed_step': 'Validate the equation 2+2 using basic arithmetic rules', 'history_update': '\n[Final Output]: The final answer to the equation 2+2 is 4.', 'tool_calls': 0, 'repeated_tool': False, 'answer': 'The final answer to the equation 2+2 is 4.', 'model': 'llama-3.1-8b-instant', 'confidence': 0.9}
+  💾 [idempotency] Step 1 result PERSISTED.
+    ✅ [verify] Confidence: 0.9 | Step output aligns with expected outcome constraints.
+  📊 [quality] Sources: 0 | Consistency: 0.5 | Confidence: 0.5
+  🧩 [embeddings] Loading sentence-transformer (all-MiniLM-L6-v2)...
+  🚨 [embeddings] Embedding failure: No module named 'sentence_transformers'
+🏁 FINAL RESULT: {'status': 'DONE', 'answer': 'The final answer to the equation 2+2 is 4.', 'confidence': 0.9, 'steps': 1, 'tools_used': 0, 'response_time_ms': 9132}
+--- RESULT ---
+{'status': 'DONE', 'answer': 'The final answer to the equation 2+2 is 4.', 'confidence': 0.9, 'steps': 1, 'tools_used': 0, 'response_time_ms': 9135}
+
+======================================
+QUERY: give python code for prime number
+======================================
+  🚀 [loop] Starting run_task: give python code for prime number
+  🧠 [preprocessor] Analyzing intent for: give python code for prime number...
+  ⚠️ [llm] Warning: Task 234b00ee not found in Redis. Using default budget.
+🚨 LLM ERROR: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.1-8b-instant` in organization `org_01kkkqak5cfen8m4b35ewewxpw` service tier `on_demand` on tokens per minute (TPM): Limit 6000, Used 5292, Requested 848. Please try again in 1.4s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+  🧠 [llm] Success (5.29s, 328 tokens, $1.8e-05)
+  🧠 [llm] Returning successful response dict.
+  🧠 [preprocessor] Grounding: NONE | Facts: 0
+  🚀 [loop] DEEP MODE ENGAGED | Strategic reasoning loop required.
+  🧩 [embeddings] Loading sentence-transformer (all-MiniLM-L6-v2)...
+  🚨 [embeddings] Embedding failure: No module named 'sentence_transformers'
+  🧠 [planner] Generating plan for: give python code for prime number...
+🧠 PLANNER INPUT: Task: give python code for prime number
+PriorContext: 
+  🧠 [planner] Sending request to LLM (Role: Strong)...
+  🧠 [router] 8b Quality Yield (100.0%) is high for 'general'. Optimizing.
+  🧠 [llm] Success (0.38s, 521 tokens, $3e-05)
+  🧠 [llm] Returning successful response dict.
+  🧠 [planner] call_llm returned: <class 'dict'>
+🧠 PLANNER OUTPUT: {
+  "status": "OK",
+  "reason": "",
+  "knowledge_audit": {
+    "internal_facts": "Python has built-in functions for generating prime numbers",
+    "missing_facts": []
+  },
+  "strategy": "compare",
+  "constraints": {
+    "min_steps": 3,
+    "require_evidence": false,
+    "structure": "sequential"
+  },
+  "steps": [
+    "Identify the range of prime numbers to generate",
+    "Use a known algorithm (e.g. Sieve of Eratosthenes) to generate prime numbers within the identified range",
+    "Implement the chosen algorithm in Python"
+  ]
+}
+
+Confidence: 1.0
+  🧠 [planner] Received LLM response (len=551) | Confidence: 0.9
+  🧠 [planner] Iteration 0 | Steps: 3
+  🛡️ [risk] Step 1: LOW (Comp: 0.0) - Low-risk operation
+  ⚙️ [executor] Step 1/3: Identify the range of prime numbers to generate
+⚙️ EXECUTOR INPUT: Task: give python code for prime number
+Planned Step 1: Identify the range of prime numbers to generate
+Current Step: 1 of 3
+Successful History: 
+
+You are the EXECUTOR. You MUST follow the provided plan strictly.
+Output STRICT JSON:
+{
+  "action": "tool" | "final",
+  "justification": {
+    "intent": "Why this step is needed",
+    "expected_outcome": "What should happen (Specific/Measurable)",
+    "risk_reason": "Why this risk is acceptable",
+    "alternatives": ["Other possible approaches"]
+  },
+  "tool": "search" | "python" | "http_fetch" | "get_time" | "list_dir" | "read_file" | "write_file",
+  "input": "JSON dictionary e.g., {'code': '...'} or {'url': '...'} or {'query': '...'}",
+  "answer": "your final response if action=final"
+}
+
+Tactical Rules:
+- FILESYSTEM: ALWAYS provide JSON for write_file: {"filename": "secret.txt", "content": "data"}.
+- TOOL PRIORITY: Use 'write_file' for saving data. NEVER use 'python' for 'os.' or 'open()'.
+- PROGRESSION: Your tool input MUST be unique and more specific than previous steps.
+- NO REPETITION: Do NOT use exactly same search/file inputs as previous steps in 'History'.
+- EVIDENCE: If using a tool, refine the query to target missing details.
+- CONSTRAINTS: Must satisfy: {}
+- FINALITY: If step is 'Final' or 'Synthesize', use action='final' with a detailed answer.
+- KNOWLEDGE: If tools cannot help, you MUST answer from your own knowledge using action='final'.
+
+  🧠 [router] 8b Quality Yield (100.0%) is high for 'general'. Optimizing.
+  🧠 [llm] Success (9.4s, 579 tokens, $3.3e-05)
+  🧠 [llm] Returning successful response dict.
+    🧠 [executor] call_llm returned: <class 'dict'>
+    🔧 [tool] search("{"query": "prime number genera...")
+  🔍 [tool] DDG Search: prime number generation range
+  🔄 [tool] DDG blocked/empty. Falling back to Brave Search.
+  ✅ [tool] Brave fallback: 5 results.
+  💾 [tool-idempotency] STORE tool=search size=0.7KB
+⚙️ EXECUTOR OUTPUT: {'status': 'success', 'executed_step': 'Identify the range of prime numbers to generate', 'history_update': "\n[Step 1] Tool:search Result: {'status': 'success', 'results': [{'title': 'Brave Result', 'snippet': 'Your request has been flagged as being suspicious and Brave Search decided to schedule a captcha', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'your browser does not seem to have JavaScript enabled.', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'with scripts blocked, you can enable scripts', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'again for Brave Search then reload this page.', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'security level, you can selectively enable JavaScript on Brave Search via the noscript extension', 'url': '#'}], 'summary': 'Retrieved 5 snippets for grounding.'}", 'tool_calls': 1, 'repeated_tool': False, 'answer': None, 'model': 'llama-3.1-8b-instant', 'confidence': 0.9}
+  💾 [idempotency] Step 1 result PERSISTED.
+    ✅ [verify] Confidence: 0.9 | Step output aligns with expected outcome constraints.
+  🛡️ [risk] Step 2: LOW (Comp: 0.0) - Low-risk operation
+  ⚙️ [executor] Step 2/3: Use a known algorithm (e.g. Sieve of Eratosthenes) to generate prime numbers within the identified range
+⚙️ EXECUTOR INPUT: Task: give python code for prime number
+Planned Step 2: Use a known algorithm (e.g. Sieve of Eratosthenes) to generate prime numbers within the identified range
+Current Step: 2 of 3
+Successful History: 
+[Step 1] Tool:search Result: {'status': 'success', 'results': [{'title': 'Brave Result', 'snippet': 'Your request has been flagged as being suspicious and Brave Search decided to schedule a captcha', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'your browser does not seem to have JavaScript enabled.', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'with scripts blocked, you can enable scripts', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'again for Brave Search then reload this page.', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'security level, you can selectively enable JavaScript on Brave Search via the noscript extension', 'url': '#'}], 'summary': 'Retrieved 5 snippets for grounding.'}
+
+You are the EXECUTOR. You MUST follow the provided plan strictly.
+Output STRICT JSON:
+{
+  "action": "tool" | "final",
+  "justification": {
+    "intent": "Why this step is needed",
+    "expected_outcome": "What should happen (Specific/Measurable)",
+    "risk_reason": "Why this risk is acceptable",
+    "alternatives": ["Other possible approaches"]
+  },
+  "tool": "search" | "python" | "http_fetch" | "get_time" | "list_dir" | "read_file" | "write_file",
+  "input": "JSON dictionary e.g., {'code': '...'} or {'url': '...'} or {'query': '...'}",
+  "answer": "your final response if action=final"
+}
+
+Tactical Rules:
+- FILESYSTEM: ALWAYS provide JSON for write_file: {"filename": "secret.txt", "content": "data"}.
+- TOOL PRIORITY: Use 'write_file' for saving data. NEVER use 'python' for 'os.' or 'open()'.
+- PROGRESSION: Your tool input MUST be unique and more specific than previous steps.
+- NO REPETITION: Do NOT use exactly same search/file inputs as previous steps in 'History'.
+- EVIDENCE: If using a tool, refine the query to target missing details.
+- CONSTRAINTS: Must satisfy: {}
+- FINALITY: If step is 'Final' or 'Synthesize', use action='final' with a detailed answer.
+- KNOWLEDGE: If tools cannot help, you MUST answer from your own knowledge using action='final'.
+
+  🧠 [llm] Success (8.08s, 867 tokens, $5e-05)
+  🧠 [llm] Returning successful response dict.
+    🧠 [executor] call_llm returned: <class 'dict'>
+    🔧 [tool] python("{"code": "def sieve_of_eratost...")
+⚙️ EXECUTOR OUTPUT: {'status': 'success', 'executed_step': 'Use a known algorithm (e.g. Sieve of Eratosthenes) to generate prime numbers within the identified range', 'history_update': '\n[Step 1] Tool:search Result: {\'status\': \'success\', \'results\': [{\'title\': \'Brave Result\', \'snippet\': \'Your request has been flagged as being suspicious and Brave Search decided to schedule a captcha\', \'url\': \'#\'}, {\'title\': \'Brave Result\', \'snippet\': \'your browser does not seem to have JavaScript enabled.\', \'url\': \'#\'}, {\'title\': \'Brave Result\', \'snippet\': \'with scripts blocked, you can enable scripts\', \'url\': \'#\'}, {\'title\': \'Brave Result\', \'snippet\': \'again for Brave Search then reload this page.\', \'url\': \'#\'}, {\'title\': \'Brave Result\', \'snippet\': \'security level, you can selectively enable JavaScript on Brave Search via the noscript extension\', \'url\': \'#\'}], \'summary\': \'Retrieved 5 snippets for grounding.\'}\n[Step 2] Tool:python Result: {\'error\': "Forbidden operation detected: \'os\'"}', 'tool_calls': 1, 'repeated_tool': False, 'answer': None, 'model': 'llama-3.1-8b-instant', 'confidence': 0.9}
+  💾 [idempotency] Step 2 result PERSISTED.
+    ✅ [verify] Confidence: 0.9 | Step output aligns with expected outcome constraints.
+  🛡️ [risk] Step 3: MEDIUM (Comp: 0.5) - Dynamic code execution
+  ⚙️ [executor] Step 3/3: Implement the chosen algorithm in Python
+⚙️ EXECUTOR INPUT: Task: give python code for prime number
+Planned Step 3: Implement the chosen algorithm in Python
+Current Step: 3 of 3
+Successful History: 
+[Step 1] Tool:search Result: {'status': 'success', 'results': [{'title': 'Brave Result', 'snippet': 'Your request has been flagged as being suspicious and Brave Search decided to schedule a captcha', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'your browser does not seem to have JavaScript enabled.', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'with scripts blocked, you can enable scripts', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'again for Brave Search then reload this page.', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'security level, you can selectively enable JavaScript on Brave Search via the noscript extension', 'url': '#'}], 'summary': 'Retrieved 5 snippets for grounding.'}
+[Step 2] Tool:python Result: {'error': "Forbidden operation detected: 'os'"}
+
+You are the EXECUTOR. You MUST follow the provided plan strictly.
+Output STRICT JSON:
+{
+  "action": "tool" | "final",
+  "justification": {
+    "intent": "Why this step is needed",
+    "expected_outcome": "What should happen (Specific/Measurable)",
+    "risk_reason": "Why this risk is acceptable",
+    "alternatives": ["Other possible approaches"]
+  },
+  "tool": "search" | "python" | "http_fetch" | "get_time" | "list_dir" | "read_file" | "write_file",
+  "input": "JSON dictionary e.g., {'code': '...'} or {'url': '...'} or {'query': '...'}",
+  "answer": "your final response if action=final"
+}
+
+Tactical Rules:
+- FILESYSTEM: ALWAYS provide JSON for write_file: {"filename": "secret.txt", "content": "data"}.
+- TOOL PRIORITY: Use 'write_file' for saving data. NEVER use 'python' for 'os.' or 'open()'.
+- PROGRESSION: Your tool input MUST be unique and more specific than previous steps.
+- NO REPETITION: Do NOT use exactly same search/file inputs as previous steps in 'History'.
+- EVIDENCE: If using a tool, refine the query to target missing details.
+- CONSTRAINTS: Must satisfy: {}
+- FINALITY: If step is 'Final' or 'Synthesize', use action='final' with a detailed answer.
+- KNOWLEDGE: If tools cannot help, you MUST answer from your own knowledge using action='final'.
+
+
+🚨 CRITICAL: This is the FINAL/SYNTHESIS step. You MUST use action='final' and provide a complete, well-structured answer in the 'answer' field. Do NOT call any tools. Synthesize everything you know into a clear response.
+
+  🧠 [llm] Success (15.83s, 992 tokens, $5.8e-05)
+  🧠 [llm] Returning successful response dict.
+    🧠 [executor] call_llm returned: <class 'dict'>
+    ⚠️ [executor] Parsing Failed. Attempt 1/3
+⚙️ EXECUTOR INPUT: Task: give python code for prime number
+Planned Step 3: Implement the chosen algorithm in Python
+Current Step: 3 of 3
+Successful History: 
+[Step 1] Tool:search Result: {'status': 'success', 'results': [{'title': 'Brave Result', 'snippet': 'Your request has been flagged as being suspicious and Brave Search decided to schedule a captcha', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'your browser does not seem to have JavaScript enabled.', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'with scripts blocked, you can enable scripts', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'again for Brave Search then reload this page.', 'url': '#'}, {'title': 'Brave Result', 'snippet': 'security level, you can selectively enable JavaScript on Brave Search via the noscript extension', 'url': '#'}], 'summary': 'Retrieved 5 snippets for grounding.'}
+[Step 2] Tool:python Result: {'error': "Forbidden operation detected: 'os'"}
+
+You are the EXECUTOR. You MUST follow the provided plan strictly.
+Output STRICT JSON:
+{
+  "action": "tool" | "final",
+  "justification": {
+    "intent": "Why this step is needed",
+    "expected_outcome": "What should happen (Specific/Measurable)",
+    "risk_reason": "Why this risk is acceptable",
+    "alternatives": ["Other possible approaches"]
+  },
+  "tool": "search" | "python" | "http_fetch" | "get_time" | "list_dir" | "read_file" | "write_file",
+  "input": "JSON dictionary e.g., {'code': '...'} or {'url': '...'} or {'query': '...'}",
+  "answer": "your final response if action=final"
+}
+
+Tactical Rules:
+- FILESYSTEM: ALWAYS provide JSON for write_file: {"filename": "secret.txt", "content": "data"}.
+- TOOL PRIORITY: Use 'write_file' for saving data. NEVER use 'python' for 'os.' or 'open()'.
+- PROGRESSION: Your tool input MUST be unique and more specific than previous steps.
+- NO REPETITION: Do NOT use exactly same search/file inputs as previous steps in 'History'.
+- EVIDENCE: If using a tool, refine the query to target missing details.
+- CONSTRAINTS: Must satisfy: {}
+- FINALITY: If step is 'Final' or 'Synthesize', use action='final' with a detailed answer.
+- KNOWLEDGE: If tools cannot help, you MUST answer from your own knowledge using action='final'.
+
+
+🚨 CRITICAL: This is the FINAL/SYNTHESIS step. You MUST use action='final' and provide a complete, well-structured answer in the 'answer' field. Do NOT call any tools. Synthesize everything you know into a clear response.
+
+
+⚠️ REJECTION: Your previous response was shallow. Add evidence and technical details.
+  💓 [idempotency] Heartbeat: Lock refreshed for Step 3.
+🚨 LLM ERROR: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.1-8b-instant` in organization `org_01kkkqak5cfen8m4b35ewewxpw` service tier `on_demand` on tokens per minute (TPM): Limit 6000, Used 5592, Requested 1251. Please try again in 8.43s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+  💓 [idempotency] Heartbeat: Lock refreshed for Step 3.
+  🧠 [llm] Success (8.96s, 1199 tokens, $7.4e-05)
+  🧠 [llm] Returning successful response dict.
+    🧠 [executor] call_llm returned: <class 'dict'>
+    🚨 [executor] Tactical error in Step 3: 'dict' object has no attribute 'lower'
+🚨 Max attempts reached. Forcing final answer.
+⚙️ EXECUTOR INPUT: 
