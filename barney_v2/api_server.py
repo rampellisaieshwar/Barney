@@ -66,7 +66,8 @@ def _flatten_task_response(data: dict) -> dict:
         "meta": data.get("result", {}).get("meta") if isinstance(data.get("result"), dict) else {}
     }
     
-    result = data.get("result")
+    result = data.get("result", {})
+    if result is None: result = {}
     
     if status in ["DONE", "FAILED"]:
         if isinstance(result, dict):
@@ -79,17 +80,21 @@ def _flatten_task_response(data: dict) -> dict:
             response["steps"] = result.get("steps", 0)
             response["tools_used"] = result.get("tools_used", 0)
             response["response_time_ms"] = result.get("response_time_ms", 0)
+            response["meta"] = result.get("meta", {})
         elif isinstance(result, str):
             response["answer"] = result
             response["confidence"] = 0.0
+            response["meta"] = {}
         else:
             response["answer"] = "No answer generated."
             response["confidence"] = 0.0
+            response["meta"] = {}
     else:
         # PENDING / RUNNING Consistency (Requirement #2)
         response["answer"] = ""
         response["message"] = "Thinking..."
         response["confidence"] = 0.0
+        response["meta"] = {}
     
     return response
 

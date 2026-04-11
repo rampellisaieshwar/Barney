@@ -154,7 +154,8 @@ def start_worker():
                             "confidence": result.get("confidence", 0.9) if isinstance(result, dict) else 0.9,
                             "steps": result.get("steps", 0) if isinstance(result, dict) else 0,
                             "tools_used": result.get("tools_used", 0) if isinstance(result, dict) else 0,
-                            "response_time_ms": result.get("response_time_ms", 0) if isinstance(result, dict) else 0
+                            "response_time_ms": result.get("response_time_ms", 0) if isinstance(result, dict) else 0,
+                            "meta": result.get("meta", {}) if isinstance(result, dict) else {}
                         }
                         
                         # [FINAL] Contract Logging (Requirement #7)
