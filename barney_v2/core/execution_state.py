@@ -25,6 +25,7 @@ class ExecutionState:
         self.completed_step_ids = [] # List of hashes for idempotency
         self.strategy_type = "explore"
         self.strategy_info = {}
+        self.grounding_data = {}
 
     def to_dict(self):
         return self.__dict__

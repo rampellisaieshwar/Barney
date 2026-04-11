@@ -5,6 +5,7 @@ import time
 import tempfile
 import shutil
 import hashlib
+from duckduckgo_search import DDGS
 
 DATA_ROOT = "barney_data"
 BACKUP_ROOT = os.path.join(DATA_ROOT, ".backups")
@@ -267,20 +268,72 @@ def get_current_time(input_data: dict = None) -> str:
     from datetime import datetime
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-def web_search(query_or_dict: str) -> str:
-    """Real Signal: DuckDuckGo-based Web Search."""
+def web_search(query_or_dict: str) -> dict:
+    """High-Fidelity Signal Acquisition: DDG-based snippet retrieval (Phase 40)."""
     query = query_or_dict.get("query") if isinstance(query_or_dict, dict) else query_or_dict
+    
+    print(f"  🔍 [tool] DDG Search: {query}")
+    from bs4 import BeautifulSoup
+    
+    print(f"  🔍 [tool] DDG Search: {query}")
     try:
-        url = f"https://api.duckduckgo.com/?q={query}&format=json"
-        res = requests.get(url, timeout=10).json()
-        abstract = res.get("AbstractText", "")
-        if not abstract and res.get("RelatedTopics"):
-             abstract = res.get("RelatedTopics")[0].get("Text", "")
-        if not abstract:
-            return f"No direct abstract found for: {query}"
-        return abstract[:1000]
+        # Phase 40: Robust Manual HTML Scraping for better reliability
+        url = f"https://html.duckduckgo.com/html/?q={query}"
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
+        
+        res = requests.get(url, headers=headers, timeout=10)
+        soup = BeautifulSoup(res.text, "html.parser")
+        
+        raw_results = soup.select(".result")
+        
+        if not raw_results:
+            return {
+                "status": "low_signal", 
+                "results": [], 
+                "summary": f"No direct HTML matches (selective) for '{query}'."
+            }
+        
+        formatted = []
+        for r in raw_results[:5]:
+            title_tag = r.select_one(".result__a")
+            snippet_tag = r.select_one(".result__snippet")
+            
+            # Robust Fallback: If snippet tag is missing, try getting body text
+            snippet = ""
+            if snippet_tag:
+                snippet = snippet_tag.text
+            else:
+                body = r.select_one(".result__body")
+                if body:
+                    snippet = body.text
+            
+            # Text Normalization (Phase 44)
+            snippet = " ".join(snippet.split()) # Normalize whitespace
+            title = " ".join(title_tag.text.split()) if title_tag else "Unknown"
+            href = title_tag["href"] if title_tag and title_tag.has_attr("href") else "#"
+            
+            if title and snippet:
+                formatted.append({
+                    "title": title,
+                    "snippet": snippet,
+                    "url": href
+                })
+        
+        if not formatted:
+            return {"status": "low_signal", "results": [], "summary": "HTML parsed but no snippets found (selective)."}
+                
+        return {
+            "status": "success",
+            "results": formatted,
+            "summary": f"Retrieved {len(formatted)} HTML snippets for grounding."
+        }
     except Exception as e:
-        return f"Search Error: {str(e)}"
+        print(f"  🚨 [tool] Search Error: {e}")
+        return {
+            "status": "error", 
+            "reason": str(e), 
+            "results": []
+        }
 
 TOOLS = {
     "search": web_search,
