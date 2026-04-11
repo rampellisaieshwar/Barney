@@ -246,7 +246,7 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
     # ── End KEY= Extraction ──────────────────────────────────────────────────
 
     # ── Agent Creation Mode Check ────────────────────────────────────────────
-    _user_id = task_id or "default"
+    _user_id = "default"
     try:
         from core.agent_mode.agent_creation_handler import is_agent_mode_on, handle as agent_handle
         if is_agent_mode_on(_user_id):
