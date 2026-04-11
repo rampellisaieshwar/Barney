@@ -1,6 +1,7 @@
-import React from 'react';
-import { Key, Globe, Shield, Save, ArrowLeft, Cpu } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Key, Globe, Shield, Save, ArrowLeft, Cpu, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { api } from '../services/api';
 
 interface SettingsProps {
   theme: 'light' | 'dark';
@@ -8,6 +9,34 @@ interface SettingsProps {
 }
 
 export const Settings: React.FC<SettingsProps> = ({ theme, onBack }) => {
+  const [agentModeEnabled, setAgentModeEnabled] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchAgentStatus();
+  }, []);
+
+  const fetchAgentStatus = async () => {
+    try {
+      const data = await api.getAgentModeStatus();
+      setAgentModeEnabled(data.agent_mode === 'ON');
+    } catch (e) {
+      console.error("Failed to fetch agent mode status", e);
+    }
+  };
+
+  const handleToggleAgentMode = async () => {
+    setLoading(true);
+    try {
+      const data = await api.toggleAgentMode(!agentModeEnabled);
+      setAgentModeEnabled(data.agent_mode === 'ON');
+    } catch (e) {
+      console.error("Failed to toggle agent mode", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const providers = [
     { name: 'Google Gemini', models: ['Gemini 1.5 Pro', 'Gemini 1.5 Flash'] },
     { name: 'Anthropic', models: ['Claude 3.5 Sonnet', 'Claude 3 Opus'] },
@@ -38,6 +67,42 @@ export const Settings: React.FC<SettingsProps> = ({ theme, onBack }) => {
 
       <main className="flex-1 p-10 overflow-y-auto custom-scrollbar">
         <div className="max-w-3xl mx-auto space-y-12 pb-20">
+          
+          {/* Agent Creation Mode */}
+          <section>
+            <div className="flex items-center gap-4 mb-8">
+              <div className="p-3 bg-amber-500/10 rounded-2xl">
+                <Zap className={cn("w-5 h-5 text-amber-500", agentModeEnabled && "animate-pulse")} />
+              </div>
+              <div>
+                <h3 className="font-bold text-xl tracking-tight">Autonomous Agent Mode</h3>
+                <p className="opacity-40 text-sm">Allow Barney to dynamically build and execute external API tools.</p>
+              </div>
+            </div>
+
+            <div className={cn(
+                  "border rounded-3xl p-8 transition-colors flex items-center justify-between",
+                  theme === 'light' ? "bg-gray-50 border-gray-100" : "bg-white/5 border-white/5"
+                )}>
+              <div className="max-w-md">
+                <h5 className="font-bold">Dynamic Tool Building</h5>
+                <p className="opacity-40 text-xs mt-1">When enabled, Barney will request and store credentials to satisfy complex requests using external services (Weather, News, Finance).</p>
+              </div>
+              <div 
+                onClick={!loading ? handleToggleAgentMode : undefined}
+                className={cn(
+                  "w-12 h-6 rounded-full relative transition-all duration-300 cursor-pointer",
+                  agentModeEnabled ? "bg-amber-500" : "bg-gray-500/20",
+                  loading && "opacity-50 cursor-not-allowed"
+                )}
+              >
+                <div className={cn(
+                  "absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300",
+                  agentModeEnabled ? "right-1" : "left-1"
+                )} />
+              </div>
+            </div>
+          </section>
           
           {/* Engine Config */}
           <section>

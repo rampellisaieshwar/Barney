@@ -142,5 +142,26 @@ export const api = {
         timestamp: '2026-04-07T09:15:00Z'
       }
     ];
+  },
+
+  async getAgentModeStatus(): Promise<{ agent_mode: string }> {
+    const res = await fetch(`${BASE_URL}/agent_mode/status?user_id=default`, {
+      headers: { 'x-api-key': import.meta.env.VITE_API_KEY || 'your-secret' }
+    });
+    if (!res.ok) throw new Error("Failed to fetch agent mode status");
+    return res.json();
+  },
+
+  async toggleAgentMode(enabled: boolean): Promise<{ status: string; agent_mode: string }> {
+    const res = await fetch(`${BASE_URL}/agent_mode/toggle`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-api-key': import.meta.env.VITE_API_KEY || 'your-secret'
+      },
+      body: JSON.stringify({ user_id: "default", enabled })
+    });
+    if (!res.ok) throw new Error("Failed to toggle agent mode");
+    return res.json();
   }
 };
