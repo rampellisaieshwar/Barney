@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -220,3 +220,27 @@ async def stream_task(task_id: str):
         stream_task_generator(task_id), 
         media_type="text/event-stream"
     )
+
+from core.agent_mode.agent_creation_handler import set_agent_mode, is_agent_mode_on
+
+class AgentModeRequest(BaseModel):
+    user_id: str
+    enabled: bool
+
+@app.post("/agent_mode/toggle")
+async def toggle_agent_mode(req: AgentModeRequest, x_api_key: str = Header(...)):
+    """Toggle agent creation mode on or off for a user."""
+    auth_key = os.getenv("BARNEY_API_KEY", "your-secret")
+    if x_api_key != auth_key:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    set_agent_mode(req.user_id, req.enabled)
+    state = "ON" if req.enabled else "OFF"
+    return {"status": "ok", "agent_mode": state, "user_id": req.user_id}
+
+@app.get("/agent_mode/status")
+async def agent_mode_status(user_id: str, x_api_key: str = Header(...)):
+    """Check if agent creation mode is currently on for a user."""
+    auth_key = os.getenv("BARNEY_API_KEY", "your-secret")
+    if x_api_key != auth_key:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    return {"user_id": user_id, "agent_mode": "ON" if is_agent_mode_on(user_id) else "OFF"}

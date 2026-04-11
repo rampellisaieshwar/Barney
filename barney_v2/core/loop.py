@@ -225,6 +225,49 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
     print(f"  🚀 [loop] Starting run_task: {task[:50]}")
     MAX_WAIT = 300 # 5 minutes
     
+    # ── KEY= Credential Extraction ───────────────────────────────────────────
+    # Handles re-submissions like: KEY=OPENWEATHER_API_KEY=abc123 what's the weather?
+    import re as _re
+    _key_match = _re.match(r"^KEY=([A-Z_]+)=([^\s]+)\s+(.*)", task.strip())
+    if _key_match:
+        _token = _key_match.group(1)
+        _key_value = _key_match.group(2)
+        _real_task = _key_match.group(3).strip()
+        _uid = task_id or "default"
+        print(f"  🔑 [loop] KEY= pattern detected. Storing {_token} for user {_uid}")
+        try:
+            from core.agent_mode.credential_vault import CredentialVault
+            _vault = CredentialVault()
+            _vault.store(_token, _key_value, _uid)
+            print(f"  ✅ [loop] Credential {_token} stored. Re-running task: {_real_task[:40]}")
+        except Exception as _ve:
+            print(f"  ⚠️ [loop] Vault store failed: {_ve}")
+        task = _real_task
+    # ── End KEY= Extraction ──────────────────────────────────────────────────
+
+    # ── Agent Creation Mode Check ────────────────────────────────────────────
+    _user_id = task_id or "default"
+    try:
+        from core.agent_mode.agent_creation_handler import is_agent_mode_on, handle as agent_handle
+        if is_agent_mode_on(_user_id):
+            print(f"  🤖 [loop] Agent Creation Mode ON. Checking task: {task[:40]}")
+            _agent_result = agent_handle(task, _user_id)
+            _agent_status = _agent_result.get("status")
+
+            if _agent_status in ("DONE", "NEEDS_CREDENTIAL"):
+                return _standardize_final_return(
+                    "DONE",
+                    _agent_result.get("answer", ""),
+                    confidence=_agent_result.get("confidence", 1.0),
+                    run_start_time=run_start_time,
+                    history=[]
+                )
+            # status == "NO_API_NEEDED" → fall through to normal pipeline
+            print(f"  🤖 [loop] Agent mode: no API needed, continuing normal flow.")
+    except Exception as _ae:
+        print(f"  ⚠️ [loop] Agent mode check failed: {_ae}. Continuing normal flow.")
+    # ── End Agent Creation Mode Check ────────────────────────────────────────
+
     # --- Conversational Bypass (Phase 50) ---
     t_lower = task.lower().strip()
     t_clean = re.sub(r"[^\w\s]", "", t_lower)
