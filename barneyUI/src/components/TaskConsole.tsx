@@ -27,6 +27,7 @@ export const TaskConsole: React.FC<TaskConsoleProps> = ({ theme, onSettingsClick
   const [isProcessing, setIsProcessing] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: string, steps?: PlanStep[] }[]>([]);
   const [currentSteps, setCurrentSteps] = useState<PlanStep[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [copyFeedback, setCopyFeedback] = useState<number | null>(null);
 
@@ -246,6 +247,7 @@ export const TaskConsole: React.FC<TaskConsoleProps> = ({ theme, onSettingsClick
                 : "bg-white/5 border-white/10 backdrop-blur-xl focus-within:border-azure-radiance/50"
             )}
           >
+            <input 
               ref={inputRef}
               type="text"
               value={goal}
@@ -273,7 +275,7 @@ export const TaskConsole: React.FC<TaskConsoleProps> = ({ theme, onSettingsClick
                 )}
               </button>
             </div>
-          </form>
+          </motion.form>
           <div className="mt-4 flex items-center justify-center gap-4 opacity-20 hover:opacity-40 transition-opacity">
             <span className="text-[10px] font-bold uppercase tracking-widest">Enterprise Secured</span>
             <div className="w-1 h-1 bg-gray-500 rounded-full" />
