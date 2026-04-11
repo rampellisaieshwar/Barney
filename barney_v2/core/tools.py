@@ -294,19 +294,19 @@ def _scrape_ddg(query: str, headers: dict) -> list:
             formatted.append({"title": title, "snippet": snippet, "url": href})
     return formatted
 
-def _scrape_google(query: str, headers: dict) -> list:
-    """Fallback: Scrape Google search results."""
+def _scrape_brave(query: str, headers: dict) -> list:
+    """Fallback: Scrape Brave Search results."""
     from bs4 import BeautifulSoup
     import urllib.parse
-    url = f"https://www.google.com/search?q={urllib.parse.quote_plus(query)}"
+    url = f"https://search.brave.com/search?q={urllib.parse.quote_plus(query)}"
     res = requests.get(url, headers=headers, timeout=10)
     soup = BeautifulSoup(res.text, "html.parser")
     
     formatted = []
-    # Google search result divs
-    for g in soup.select("div.tF2Cxc, div.g")[:5]:
-        title_tag = g.select_one("h3")
-        snippet_tag = g.select_one("div.VwiC3b, span.aCOpRe, div.IsZvec")
+    # Brave uses <div class="snippet"> for results
+    for g in soup.select("div.snippet")[:5]:
+        title_tag = g.select_one("span.snippet-title")
+        snippet_tag = g.select_one("p.snippet-description")
         link_tag = g.select_one("a")
         
         title = " ".join(title_tag.text.split()) if title_tag else ""
@@ -315,7 +315,30 @@ def _scrape_google(query: str, headers: dict) -> list:
         
         if title and snippet:
             formatted.append({"title": title, "snippet": snippet, "url": href})
+    
+    # Alternative selector fallback for Brave's layout variations
+    if not formatted:
+        for g in soup.select("div[data-type='web']")[:5]:
+            title_tag = g.select_one("a div.title")
+            snippet_tag = g.select_one("div.description")
+            link_tag = g.select_one("a.result-header")
+            
+            title = " ".join(title_tag.text.split()) if title_tag else ""
+            snippet = " ".join(snippet_tag.text.split()) if snippet_tag else ""
+            href = link_tag["href"] if link_tag and link_tag.has_attr("href") else "#"
+            
+            if title and snippet:
+                formatted.append({"title": title, "snippet": snippet, "url": href})
+    
+    # Last resort: extract any text blocks near links
+    if not formatted:
+        all_text = soup.get_text(separator="\n")
+        lines = [l.strip() for l in all_text.split("\n") if len(l.strip()) > 40]
+        for line in lines[:5]:
+            formatted.append({"title": "Brave Result", "snippet": line, "url": "#"})
+    
     return formatted
+
 
 def web_search(query_or_dict: str) -> dict:
     """Multi-Source Signal Acquisition with failover (Phase 47)."""
@@ -328,12 +351,12 @@ def web_search(query_or_dict: str) -> dict:
         # Primary: DuckDuckGo
         formatted = _scrape_ddg(query, headers)
         
-        # Fallback: Google (if DDG blocked/empty)
+        # Fallback: Brave Search (if DDG blocked/empty)
         if not formatted:
-            print(f"  🔄 [tool] DDG blocked/empty. Falling back to Google scraper.")
-            formatted = _scrape_google(query, headers)
+            print(f"  🔄 [tool] DDG blocked/empty. Falling back to Brave Search.")
+            formatted = _scrape_brave(query, headers)
             if formatted:
-                print(f"  ✅ [tool] Google fallback: {len(formatted)} results.")
+                print(f"  ✅ [tool] Brave fallback: {len(formatted)} results.")
         
         if not formatted:
             return {
