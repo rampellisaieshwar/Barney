@@ -538,12 +538,7 @@ Now provide a direct, factual answer:"""
     
     # 3.5 Insufficient Confidence Exit (Phase 11.5)
     if state.status == "INSUFFICIENT_CONFIDENCE":
-            "answer": _ensure_str_answer("System self-identified ambiguity threshold breach."),
-            "confidence": 0.0,
-            "steps": 0,
-            "tools_used": 0,
-            "response_time_ms": int((time.time() - run_start_time) * 1000)
-        }
+        return _standardize_final_return("failed", "System self-identified ambiguity threshold breach.", confidence=0.0, run_start_time=run_start_time)
 
     # 4. Governed Execution Loop
     # Phase 37: Production-Grade Idempotency
