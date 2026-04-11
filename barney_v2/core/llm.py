@@ -6,9 +6,16 @@ from groq import Groq
 from dotenv import load_dotenv
 
 # Dynamic .env resolution (Phase 12: Portability)
-env_path = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(env_path)
+env_path_v2 = Path(__file__).resolve().parent.parent / ".env"
+env_path_root = Path(__file__).resolve().parent.parent.parent / ".env"
 
+if env_path_v2.exists():
+    load_dotenv(env_path_v2)
+elif env_path_root.exists():
+    load_dotenv(env_path_root)
+else:
+    # Fallback to current working directory
+    load_dotenv()
 _client_instance = None
 
 from redis_client import check_llm_throttle, add_task_usage, get_task
