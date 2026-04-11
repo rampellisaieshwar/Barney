@@ -7,175 +7,85 @@ export const api = {
    * Placeholder for streaming task execution from FastAPI
    */
   async *streamTask(goal: string) {
+    const BASE = import.meta.env.VITE_API_BASE || '/api';
+    const API_KEY = import.meta.env.VITE_API_KEY || 'your-secret';
+
     try {
-      // 1. Submit task
-      const startRes = await fetch(`${BASE_URL}/run_task`, {
+      // Submit task
+      const startRes = await fetch(`${BASE}/run_task`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': import.meta.env.VITE_API_KEY || 'your-secret'
+          'x-api-key': API_KEY
         },
         body: JSON.stringify({ task: goal, user_id: "test_user" })
       });
       if (!startRes.ok) throw new Error("Failed to start task");
       const { task_id } = await startRes.json();
 
-      // 2. Open WebSocket
-      const apiBase = import.meta.env.VITE_API_BASE || '/api';
-      const wsBase = apiBase
-        .replace(/^http:/, 'ws:')
-        .replace(/^https:/, 'wss:');
-      
-      let ws: WebSocket;
-      try {
-        ws = new WebSocket(`${wsBase}/ws/${task_id}`);
-      } catch (e) {
-        console.warn('WebSocket failed, falling back to polling');
-        ws = null as any;
-      }
+      // Poll until done
+      let isDone = false;
+      let lastLogsCount = 0;
 
-      // If WebSocket not available, fall back to polling
-      if (!ws || ws.readyState === WebSocket.CLOSED) {
-        let isDone = false;
-        let lastLogsCount = 0;
-        while (!isDone) {
-          await new Promise(r => setTimeout(r, 2000));
-          const statusRes = await fetch(`${apiBase}/status/${task_id}`);
-          if (!statusRes.ok) continue;
-          const data = await statusRes.json();
-          const logs = data.logs || [];
-          for (let i = lastLogsCount; i < logs.length; i++) {
+      while (!isDone) {
+        await new Promise(r => setTimeout(r, 2000));
+
+        const statusRes = await fetch(`${BASE}/status/${task_id}`, {
+          headers: { 'x-api-key': API_KEY }
+        });
+        if (!statusRes.ok) continue;
+
+        const data = await statusRes.json();
+        const logs: string[] = data.logs || [];
+
+        for (let i = lastLogsCount; i < logs.length; i++) {
+          const raw = logs[i];
+          let title = raw.substring(0, 60);
+          let stage: 'explore' | 'execute' | 'validate' = 'explore';
+
+          if (raw.includes('Detected:')) { title = '🤖 ' + raw.split('Detected:')[1]?.trim().substring(0, 50); }
+          else if (raw.includes('Found') && raw.includes('key')) { title = '🔑 API key found in vault'; }
+          else if (raw.includes('Generating Python code')) { title = '🧠 Generating Python code...'; stage = 'execute'; }
+          else if (raw.includes('Code generated')) { title = '✅ Code generated'; stage = 'execute'; }
+          else if (raw.includes('Installing package')) { title = '📦 Installing ' + (raw.split('Installing package:')[1]?.trim() || ''); stage = 'execute'; }
+          else if (raw.includes('Running code')) { title = '🚀 Running code...'; stage = 'execute'; }
+          else if (raw.includes('Result received')) { title = '✅ Got result from API'; stage = 'validate'; }
+          else if (raw.includes('SIMPLE MODE')) { title = '⚡ Quick answer mode'; }
+          else if (raw.includes('DEEP MODE')) { title = '🔍 Deep research mode'; }
+          else if (raw.includes('Search:') || raw.includes('DDG') || raw.includes('Brave')) { title = '🔍 Searching the web...'; stage = 'execute'; }
+          else if (raw.includes('Planner') || raw.includes('plan')) { title = '📋 Planning approach...'; }
+
+          yield {
+            id: `${task_id}-log-${i}`,
+            title,
+            description: raw,
+            status: 'completed' as const,
+            stage,
+            risk: { score: 0, level: 'low' as const, reasoning: 'Process step' },
+            requiresApproval: false
+          };
+        }
+        lastLogsCount = logs.length;
+
+        if (data.status === 'DONE' || data.status === 'FAILED') {
+          isDone = true;
+          const answer = typeof data.answer === 'string' && data.answer
+            ? data.answer
+            : data.result?.answer || '';
+
+          if (answer) {
             yield {
-              id: `${task_id}-log-${i}`,
-              title: logs[i].substring(0, 60),
-              description: logs[i],
+              id: `${task_id}-answer`,
+              title: 'Final Answer',
+              description: answer,
               status: 'completed' as const,
-              stage: 'explore' as const,
-              risk: { score: 0, level: 'low' as const, reasoning: 'log' },
+              stage: 'validate' as const,
+              risk: { score: 0, level: 'low' as const, reasoning: `Confidence: ${data.confidence}` },
               requiresApproval: false
             };
           }
-          lastLogsCount = logs.length;
-          if (data.status === 'DONE' || data.status === 'FAILED') {
-            isDone = true;
-            const answer = data.answer || data.result?.answer || '';
-            if (answer) {
-              yield {
-                id: `${task_id}-answer`,
-                title: 'Final Answer',
-                description: answer,
-                status: 'completed' as const,
-                stage: 'validate' as const,
-                risk: { score: 0, level: 'low' as const, reasoning: `Confidence: ${data.confidence}` },
-                requiresApproval: false
-              };
-            }
-          }
-        }
-        return;
-      }
-
-      // 3. Stream via async generator (WebSocket path)
-      const queue: any[] = [];
-      let done = false;
-      let resolveNext: (() => void) | null = null;
-
-      ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        queue.push(data);
-        if (resolveNext) {
-          resolveNext();
-          resolveNext = null;
-        }
-      };
-
-      ws.onclose = () => {
-        done = true;
-        if (resolveNext) {
-          resolveNext();
-          resolveNext = null;
-        }
-      };
-
-      ws.onerror = () => {
-        done = true;
-        if (resolveNext) {
-          resolveNext();
-          resolveNext = null;
-        }
-      };
-
-      while (!done || queue.length > 0) {
-        if (queue.length === 0) {
-          await new Promise<void>(resolve => { resolveNext = resolve; });
-        }
-
-        while (queue.length > 0) {
-          const event = queue.shift();
-
-          if (event.type === 'log') {
-            const raw = event.message as string;
-            let title = raw.substring(0, 60);
-            let stage: 'explore' | 'execute' | 'validate' = 'explore';
-
-            if (raw.includes('Detected:')) {
-              title = '🤖 ' + raw.split('Detected:')[1]?.trim().substring(0, 50);
-            } else if (raw.includes('Found') && raw.includes('key')) {
-              title = '🔑 API key found in vault';
-            } else if (raw.includes('requesting from user')) {
-              title = '🔑 Requesting API key from user';
-            } else if (raw.includes('Generating Python code')) {
-              title = '🧠 Generating Python code...';
-              stage = 'execute';
-            } else if (raw.includes('Code generated')) {
-              title = '✅ Code generated';
-              stage = 'execute';
-            } else if (raw.includes('Installing package')) {
-              title = '📦 Installing ' + (raw.split('Installing package:')[1]?.trim() || '');
-              stage = 'execute';
-            } else if (raw.includes('Running code')) {
-              title = '🚀 Running code...';
-              stage = 'execute';
-            } else if (raw.includes('Result received')) {
-              title = '✅ Got result from API';
-              stage = 'validate';
-            } else if (raw.includes('SIMPLE MODE')) {
-              title = '⚡ Quick answer mode';
-            } else if (raw.includes('DEEP MODE')) {
-              title = '🔍 Deep research mode';
-            } else if (raw.includes('Search:') || raw.includes('DDG') || raw.includes('Brave')) {
-              title = '🔍 Searching the web...';
-              stage = 'execute';
-            } else if (raw.includes('Planner') || raw.includes('plan')) {
-              title = '📋 Planning approach...';
-            }
-
-            yield {
-              id: `${task_id}-log-${event.index}`,
-              title,
-              description: raw,
-              status: 'completed' as const,
-              stage,
-              risk: { score: 0, level: 'low' as const, reasoning: 'Process step' },
-              requiresApproval: false
-            };
-
-          } else if (event.type === 'done') {
-            if (event.answer) {
-              yield {
-                id: `${task_id}-answer`,
-                title: 'Final Answer',
-                description: event.answer,
-                status: 'completed' as const,
-                stage: 'validate' as const,
-                risk: { score: 0, level: 'low' as const, reasoning: `Confidence: ${event.confidence}` },
-                requiresApproval: false
-              };
-            }
-          }
         }
       }
-
     } catch (err) {
       console.error(err);
       yield {
