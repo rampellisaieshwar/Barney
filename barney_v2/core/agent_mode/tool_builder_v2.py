@@ -17,20 +17,28 @@ def detect_required_credentials(task: str) -> dict:
     Ask LLM whether this task needs an external API and what credentials are required.
     Returns dict: { needs_api: bool, api_name: str, credential_token: str, install_package: str }
     """
-    prompt = f"""Analyze this task and determine if it requires an external API or service.
+    prompt = f"""You are analyzing whether a task requires calling an external API to get real-time or live data.
 
 Task: {task}
 
-Reply with a JSON object only, no explanation:
+External APIs are needed for:
+- Weather (current conditions, temperature, forecast)
+- Stock prices, crypto prices
+- News headlines
+- Sports scores
+- Currency exchange rates
+- Any live/real-time data
+
+Reply with JSON only:
 {{
   "needs_api": true or false,
-  "api_name": "name of the API/service (e.g. OpenWeather, NewsAPI)",
-  "credential_token": "short token name for storing the key (e.g. OPENWEATHER_API_KEY)",
-  "install_package": "pip package name needed (e.g. requests)",
+  "api_name": "name of the API (e.g. OpenWeatherMap, NewsAPI, CoinGecko)",
+  "credential_token": "token name for the key (e.g. OPENWEATHER_API_KEY)",
+  "install_package": "pip package name (use 'requests' for most APIs)",
   "reasoning": "one sentence why"
 }}
 
-If needs_api is false, set api_name, credential_token, install_package to empty strings."""
+For weather tasks, needs_api is ALWAYS true and api_name is OpenWeatherMap."""
 
     res = call_llm(prompt, role="fast")
     content = res.get("content", "{}")
