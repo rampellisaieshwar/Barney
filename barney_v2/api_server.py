@@ -33,6 +33,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def root():
+    """PIPELINE CONTRACT: Root health check (Requirement #6)."""
+    return {
+        "status": "ok",
+        "service": "barney-api",
+        "version": "1.0.1"
+    }
+
 @app.get("/health")
 def health():
     """Simple health check endpoint."""
@@ -46,9 +55,10 @@ def _flatten_task_response(data: dict) -> dict:
     if not data:
         return data
     
+    status = data.get("status", "PENDING")
     response = {
         "task_id": data.get("task_id"),
-        "status": data.get("status"),
+        "status": status,
         "logs": data.get("logs", []),
         "updated_at": data.get("updated_at"),
         "worker_id": data.get("worker_id"),
@@ -57,25 +67,28 @@ def _flatten_task_response(data: dict) -> dict:
     
     result = data.get("result")
     
-    if isinstance(result, dict):
-        # Extract from flat result dict: {"answer": "...", "confidence": ...}
-        answer = result.get("answer", "")
-        # Defensive: if answer is STILL a dict, stringify it
-        if not isinstance(answer, str):
-            answer = json.dumps(answer) if answer else "No answer generated."
-        response["answer"] = answer
-        response["confidence"] = result.get("confidence", 0.0)
-        response["steps"] = result.get("steps", 0)
-        response["tools_used"] = result.get("tools_used", 0)
-        response["response_time_ms"] = result.get("response_time_ms", 0)
-    elif isinstance(result, str):
-        # Legacy: result stored as raw string
-        response["answer"] = result
-        response["confidence"] = 0.0
+    if status in ["DONE", "FAILED"]:
+        if isinstance(result, dict):
+            answer = result.get("answer", "")
+            # Defensive: if answer is STILL a dict, stringify it
+            if not isinstance(answer, str):
+                answer = json.dumps(answer) if answer else ""
+            response["answer"] = answer
+            response["confidence"] = float(result.get("confidence", 0.0))
+            response["steps"] = result.get("steps", 0)
+            response["tools_used"] = result.get("tools_used", 0)
+            response["response_time_ms"] = result.get("response_time_ms", 0)
+        elif isinstance(result, str):
+            response["answer"] = result
+            response["confidence"] = 0.0
+        else:
+            response["answer"] = "No answer generated."
+            response["confidence"] = 0.0
     else:
-        # No result yet (PENDING/RUNNING)
-        response["answer"] = None
-        response["confidence"] = None
+        # PENDING / RUNNING Consistency (Requirement #2)
+        response["answer"] = ""
+        response["message"] = "Thinking..."
+        response["confidence"] = 0.0
     
     return response
 
@@ -166,11 +179,13 @@ async def stream_task_generator(task_id: str):
                 "logs": new_logs,
                 "full_count": len(logs)
             }
-            # PIPELINE CONTRACT: Include answer in terminal SSE events
-            if status in ["DONE", "FAILED"]:
-                flat = _flatten_task_response(state)
-                payload["answer"] = flat.get("answer")
-                payload["confidence"] = flat.get("confidence")
+            # PIPELINE CONTRACT: Use flattened structure for all states
+            flat = _flatten_task_response(state)
+            payload.update({
+                "answer": flat.get("answer"),
+                "confidence": flat.get("confidence"),
+                "message": flat.get("message")
+            })
             yield f"data: {json.dumps(payload)}\n\n"
             last_len = len(logs)
             

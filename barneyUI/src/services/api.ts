@@ -47,6 +47,14 @@ export const api = {
         }
         lastLogsCount = logs.length;
         
+        // PIPELINE CONTRACT: Frontend Verification Log (Requirement #4)
+        console.log("[CONTRACT VERIFY] Stream Event:", {
+          status: data.status,
+          has_answer: !!data.answer,
+          answer_type: typeof data.answer,
+          confidence: data.confidence
+        });
+        
         if (data.status === 'DONE' || data.status === 'FAILED') {
            isDone = true;
            

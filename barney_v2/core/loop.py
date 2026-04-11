@@ -157,6 +157,27 @@ def _ensure_str_answer(answer) -> str:
         return json.dumps(answer, indent=2)
     return str(answer)
 
+def _standardize_final_return(status: str, answer: any, confidence: float = 0.9, run_start_time: float = None, history: list = None, **kwargs):
+    """PIPELINE CONTRACT: The single source of truth for all run_task returns."""
+    final_answer = _ensure_str_answer(answer)
+    
+    # [FINAL] Contract Logging (Requirement #7)
+    print(f"  [FINAL] Answer type: {type(final_answer).__name__}, preview: {final_answer[:100].replace('\n', ' ')}")
+    
+    res = {
+        "status": status,
+        "answer": final_answer,
+        "confidence": float(confidence),
+        "steps": len(history) if history else 0,
+        "tools_used": sum(h.get("tool_calls", 0) for h in history if isinstance(h, dict)) if history else 0,
+    }
+    
+    if run_start_time:
+        res["response_time_ms"] = int((time.time() - run_start_time) * 1000)
+    
+    res.update(kwargs)
+    return res
+
 def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: bool = False, forced_outcome: dict = None, task_id: str = None) -> dict:
     """
     Hardened Step-by-Step Governed Loop (Phase 12.5).
@@ -499,26 +520,12 @@ Now provide a direct, factual answer:"""
                 print(f"  🛑 [planner] Insufficient Confidence: {res_plan.get('reason')}")
                 state.status = "INSUFFICIENT_CONFIDENCE"
                 state.result = f"I cannot proceed with high confidence. Reason: {res_plan.get('reason')}"
-                return {
-                    "status": "failed",
-                    "answer": _ensure_str_answer(f"I cannot proceed with high confidence. Reason: {res_plan.get('reason')}"),
-                    "confidence": 0.0,
-                    "steps": 0,
-                    "tools_used": 0,
-                    "response_time_ms": int((time.time() - run_start_time) * 1000)
-                }
+                return _standardize_final_return("failed", f"I cannot proceed with high confidence. Reason: {res_plan.get('reason')}", confidence=0.0, run_start_time=run_start_time)
 
             if not state.plan:
                 print("  🚨 [planner] Error: Planner generated an empty plan.")
                 state.status = "FAILED"
-                return {
-                    "status": "failed",
-                    "answer": _ensure_str_answer("Planner failed to generate tactical steps."),
-                    "confidence": 0.0,
-                    "steps": 0,
-                    "tools_used": 0,
-                    "response_time_ms": int((time.time() - run_start_time) * 1000)
-                }
+                return _standardize_final_return("failed", "Planner failed to generate tactical steps.", confidence=0.0, run_start_time=run_start_time)
 
             state.strategy_type = strategy_info.get("suggested_strategy", "explore")
             state.constraints = {}
@@ -527,19 +534,10 @@ Now provide a direct, factual answer:"""
 
     # 3. Exit early if rejected or timeout (Chaos Guard)
     if state.status in ["REJECTED_TIMEOUT", "FAILED"]:
-        return {
-            "status": "failed",
-            "answer": _ensure_str_answer("Governance rejection or safety timeout triggered."),
-            "confidence": 0.0,
-            "steps": 0,
-            "tools_used": 0,
-            "response_time_ms": int((time.time() - run_start_time) * 1000)
-        }
+        return _standardize_final_return("failed", "Governance rejection or safety timeout triggered.", run_start_time=run_start_time)
     
     # 3.5 Insufficient Confidence Exit (Phase 11.5)
     if state.status == "INSUFFICIENT_CONFIDENCE":
-        return {
-            "status": "failed",
             "answer": _ensure_str_answer("System self-identified ambiguity threshold breach."),
             "confidence": 0.0,
             "steps": 0,
@@ -762,7 +760,13 @@ Now provide a direct, factual answer:"""
             state.status = "BRAIN_DEAD"
             state.result = f"Brain disconnected mid-execution: {res.get('error')}"
             state.save()
-            return { "status": "failed", "answer": _ensure_str_answer(state.result), "confidence": 0.0, "steps": len(state.history), "tools_used": 0, "response_time_ms": int((time.time() - run_start_time) * 1000) }
+            return _standardize_final_return(
+                "failed", 
+                state.result, 
+                confidence=0.0, 
+                run_start_time=run_start_time,
+                history=state.history
+            )
         else:
             print(f"  🚨 [loop] Step execution failed: {res.get('reason')}")
             state.status = "FAILED"
@@ -884,11 +888,11 @@ Now provide a direct, factual answer:"""
         record_model_experience(task_type, last_model, 0.1) # Minimum yield for failure
     
     print("🏁 FINAL RESULT:", result_data)
-    return {
-        "status": "DONE",
-        "answer": _ensure_str_answer(state.result),
-        "confidence": state.final_confidence,
-        "steps": len(state.history),
-        "tools_used": sum(h.get("tool_calls", 0) for h in state.history if isinstance(h, dict)),
-        "response_time_ms": int((time.time() - run_start_time) * 1000)
-    }
+    return _standardize_final_return(
+        "DONE", 
+        state.result, 
+        confidence=state.final_confidence, 
+        run_start_time=run_start_time,
+        history=state.history,
+        quality_metrics=result_data
+    )

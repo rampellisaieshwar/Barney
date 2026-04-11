@@ -121,28 +121,33 @@ def start_worker():
                         print(f"  [worker {WORKER_ID}] {msg}")
                         append_log(task_id, msg)
                         # PIPELINE CONTRACT: Store flat result with string answer
+                        error_answer = result.get("answer", "Brain disconnected") if isinstance(result, dict) else "Brain disconnected"
+                        if not isinstance(error_answer, str): error_answer = str(error_answer)
+                        
                         flat_result = {
-                            "answer": str(result.get("answer", "Brain disconnected") if isinstance(result, dict) else "Brain disconnected"),
+                            "answer": error_answer,
                             "confidence": 0.0,
                             "steps": 0,
                             "tools_used": 0,
                             "response_time_ms": 0
                         }
+                        print(f"  [FINAL] Answer type: {type(error_answer).__name__}, preview: {error_answer[:100].replace('\n', ' ')}")
                         update_task(task_id, "FAILED", flat_result, worker_id=WORKER_ID, user_id=user_id)
                     else:
                         print(f"✅ [worker {WORKER_ID}] Task {task_id} completed.")
                         append_log(task_id, f"🏁 {tag_prefix} Task completed successfully.")
-                        # PIPELINE CONTRACT: Extract string answer from run_task result
-                        # run_task returns {"status": "...", "answer": "...", "confidence": ..., ...}
-                        # We must store it flat with answer guaranteed as string
+                        
+                        # PIPELINE CONTRACT: Extract and verify string answer
                         answer_val = ""
                         if isinstance(result, dict):
                             answer_val = result.get("answer", "")
                         elif isinstance(result, str):
                             answer_val = result
-                        # Defensive: if answer is still a dict/nested, stringify it
+                        
+                        # Definitive String Casting (Requirement #1)
                         if not isinstance(answer_val, str):
-                            answer_val = json.dumps(answer_val) if answer_val else "No answer generated."
+                            print(f"⚠️ [CONTRACT] Coercing answer from {type(answer_val)} to str")
+                            answer_val = json.dumps(answer_val) if answer_val else ""
                         
                         flat_result = {
                             "answer": answer_val,
@@ -151,14 +156,16 @@ def start_worker():
                             "tools_used": result.get("tools_used", 0) if isinstance(result, dict) else 0,
                             "response_time_ms": result.get("response_time_ms", 0) if isinstance(result, dict) else 0
                         }
-                        print(f"  [FINAL] Answer type: {type(answer_val).__name__}, preview: {answer_val[:100]}")
+                        
+                        # [FINAL] Contract Logging (Requirement #7)
+                        print(f"  [FINAL] Answer type: {type(answer_val).__name__}, preview: {answer_val[:100].replace('\n', ' ')}")
                         update_task(task_id, "DONE", flat_result, worker_id=WORKER_ID, user_id=user_id)
                         
                 except Exception as eval_err:
                     error_msg = f"❌ {tag_prefix} Execution error: {str(eval_err)}"
                     print(f"  [worker {WORKER_ID}] {error_msg}")
                     append_log(task_id, error_msg)
-                    # PIPELINE CONTRACT: Even errors get flat result with string answer
+                    # PIPELINE CONTRACT: Standardized FAILED state (Requirement #3)
                     error_result = {
                         "answer": f"Execution error: {str(eval_err)}",
                         "confidence": 0.0,
