@@ -33,10 +33,24 @@ def generate_plan(task: str, memory_context: str = "", strategy_info: dict = Non
     from core.insight_engine import get_task_type
     task_type = get_task_type(task)
     tool_guidance = ""
-    if task_type == "compute":
-        tool_guidance = "\n- TASK TYPE: COMPUTE. Suggest using 'python' tool specifically for logic and calculation."
+    _t_lower = task.lower()
+    _CODE_SIGS = ["write", "code", "script", "function", "implement", "algorithm",
+                  "program", "snippet", "python", "javascript", "java", "sql",
+                  "bash", "typescript", "rust", "c++"]
+    _LANG_MAP = {
+        "python": "Python", "javascript": "JavaScript", "java": "Java",
+        "sql": "SQL", "bash": "Bash", "typescript": "TypeScript", "rust": "Rust", "c++": "C++"
+    }
+    if any(s in _t_lower for s in _CODE_SIGS):
+        _lang = next((v for k, v in _LANG_MAP.items() if k in _t_lower), "Python")
+        tool_guidance = (
+            f"\n- TASK TYPE: CODING. Final step MUST produce working {_lang} code in a fenced code block."
+            f"\n- Steps must be: 1) Write the {_lang} code. 2) Brief explanation. Nothing else."
+        )
+    elif task_type == "compute":
+        tool_guidance = "\n- TASK TYPE: COMPUTE. Use 'python' tool. Final step must show the numeric result."
     elif task_type == "web":
-        tool_guidance = "\n- TASK TYPE: WEB. Use 'search' for latest info."
+        tool_guidance = "\n- TASK TYPE: WEB. Use 'search'. First step must be a search."
 
     bhv_rules = ""
     if suggested_strategy == "validate":
@@ -101,6 +115,8 @@ def generate_plan(task: str, memory_context: str = "", strategy_info: dict = Non
         "- [HONESTY]: If 'missing_facts' contains information that is impossible to satisfy, return 'INSUFFICIENT_CONFIDENCE'.\n"
         "- [MEMORY TRUST]: If weight < 0.4, treat memory as UNVERIFIED. If weight > 0.8, favor reuse.\n"
         "- Steps should be actionable but high-level.\n"
+        "- [OUTPUT FORMAT]: Match output format to the request. Code request = code output. Never plan generic 'synthesize' steps for code requests.\n"
+        "- [CODING TASKS]: For code/script/function requests: step 1 = write the full implementation, step 2 = usage example. Do not add research steps for logic that uses only standard knowledge.\n"
     )
 
     user_prompt = f"Task: {task}\nPriorContext: {combined_context}"

@@ -162,7 +162,8 @@ def _standardize_final_return(status: str, answer: any, confidence: float = 0.9,
     final_answer = _ensure_str_answer(answer)
     
     # [FINAL] Contract Logging (Requirement #7)
-    print(f"  [FINAL] Answer type: {type(final_answer).__name__}, preview: {final_answer[:100].replace('\n', ' ')}")
+    _preview = final_answer[:100].replace('\n', ' ')
+    print(f"  [FINAL] Answer type: {type(final_answer).__name__}, preview: {_preview}")
     
     res = {
         "status": status,
@@ -177,6 +178,44 @@ def _standardize_final_return(status: str, answer: any, confidence: float = 0.9,
     
     res.update(kwargs)
     return res
+
+def _build_generative_system_prompt(task: str) -> str:
+    t = task.lower()
+    code_signals = [
+        "write", "code", "script", "function", "program", "implement",
+        "algorithm", "snippet", "class", "python", "javascript", "java",
+        "sql", "bash", "typescript", "rust", "c++"
+    ]
+    if any(s in t for s in code_signals):
+        lang_hints = {
+            "python": "Python", "javascript": "JavaScript", "java": "Java",
+            "sql": "SQL", "bash": "Bash", "c++": "C++", "rust": "Rust",
+            "typescript": "TypeScript"
+        }
+        lang = next((v for k, v in lang_hints.items() if k in t), "the appropriate language")
+        return (
+            f"You are an expert software engineer. "
+            f"The user wants working {lang} code. "
+            f"Respond with ONLY the code in a fenced code block, then a brief explanation after it. "
+            f"Do NOT produce step-by-step English plans. Write complete, runnable code immediately."
+        )
+    creative_signals = ["write a", "write an", "story", "poem", "essay", "draft", "compose"]
+    if any(s in t for s in creative_signals):
+        return (
+            "You are a skilled writer. Produce the requested creative content directly. "
+            "Do not explain your approach — just write the content."
+        )
+    math_signals = ["calculate", "compute", "solve", "formula", "equation"]
+    if any(s in t for s in math_signals):
+        return (
+            "You are a precise mathematician. Show working step-by-step, "
+            "then give the final numerical answer clearly."
+        )
+    return (
+        "You are Barney, a highly capable AI assistant. "
+        "Answer the following request fully, directly, and in the most useful format. "
+        "Do not produce planning steps — produce the actual answer."
+    )
 
 def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: bool = False, forced_outcome: dict = None, task_id: str = None) -> dict:
     """
@@ -241,6 +280,25 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
         grounding_data = get_grounding_requirement(task, task_id=state.task_id)
         state.grounding_data = grounding_data
         
+        # ── Classification safety net ────────────────────────────────────────
+        _t_low = task.lower()
+        _code_sigs = {"write", "code", "script", "function", "program", "implement",
+                      "algorithm", "snippet", "python", "javascript", "java", "sql",
+                      "bash", "typescript", "rust", "c++", "regex"}
+        _creative_sigs = {"write a", "write an", "compose", "draft"}
+        _compute_sigs = {"calculate", "compute", "solve", "convert"}
+        _needs_override = (
+            any(s in _t_low for s in _code_sigs) or
+            any(s in _t_low for s in _creative_sigs) or
+            any(s in _t_low for s in _compute_sigs)
+        )
+        if _needs_override and grounding_data.get("task_nature") not in ["GENERATIVE", "HYBRID"]:
+            print(f"  🔧 [classify] Overriding task_nature to GENERATIVE (was: {grounding_data.get('task_nature')})")
+            grounding_data["task_nature"] = "GENERATIVE"
+            grounding_data["required_grounding"] = "NONE"
+            state.grounding_data = grounding_data
+        # ── End classification safety net ────────────────────────────────────
+        
         # 1.6 Semantic Override Logic (Requirement #1, #2, #4)
         task_nature = grounding_data.get("task_nature", "FACTUAL")
         grounding_req = grounding_data.get("required_grounding", "NONE")
@@ -260,8 +318,25 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
         state.meta["confidence_type"] = "normal"
         
         if state.is_generative_override:
-            print(f"  🧠 [MODE] GENERATIVE OVERRIDE (SEMANTIC) engaged for: {task[:30]}...")
-            append_log(state.task_id, "🧠 [MODE] GENERATIVE OVERRIDE (SEMANTIC) engaged")
+            print(f"  ⚡ [MODE] GENERATIVE PREEMPT engaged for: {task[:40]}...")
+            append_log(state.task_id, "⚡ [MODE] GENERATIVE PREEMPT: Direct synthesis, bypassing planner")
+
+            from core.llm import call_llm
+            gen_sys = _build_generative_system_prompt(task)
+            gen_res = call_llm(task, system_prompt=gen_sys, role="strong", task_id=state.task_id)
+            state.result = gen_res.get("content", "I encountered an error during synthesis.")
+            state.confidence = max(gen_res.get("confidence", 0.85), 0.85)
+            state.meta["confidence_type"] = "generative_preempt"
+            state.status = "COMPLETED"
+
+            return _standardize_final_return(
+                "DONE",
+                state.result,
+                confidence=state.confidence,
+                run_start_time=run_start_time,
+                history=state.history,
+                meta=state.meta
+            )
         
         # Mandatory Pre-Search Grounding
         if grounding_data.get("required_grounding") in ["REAL_TIME", "RECENT"]:
