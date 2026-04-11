@@ -28,6 +28,9 @@ class ExecutionState:
         self.grounding_data = {}
         self.confidence = 0.0
         self.meta = {}
+        self.is_generative_override = False
+        self.is_hybrid_fallback = False
+        self.wait_start_time = 0.0
 
     def to_dict(self):
         return self.__dict__
