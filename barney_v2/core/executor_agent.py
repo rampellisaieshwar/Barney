@@ -18,7 +18,14 @@ def parse_tool_call(output: str):
         end = output.rfind("}") + 1
         if start == -1 or end == 0: return None
         json_str = output[start:end]
-        return json.loads(json_str, strict=False)
+        data = json.loads(json_str, strict=False)
+
+        # Lightweight normalization fallback: trim whitespace and noise from string values
+        if isinstance(data, dict):
+            for k, v in data.items():
+                if isinstance(v, str):
+                    data[k] = v.strip().strip('"').strip("'")
+        return data
     except:
         return None
 
@@ -122,8 +129,8 @@ def validate_plan_execution(plan: dict, executed_steps: list) -> tuple:
             
     return True, "OK"
 
-def execute_single_step(task: str, step: str, step_idx: int, total_steps: int, 
-                        history: str = "", tool_history: list = None, constraints: dict = None,
+def execute_single_step(task: str, step: str, step_idx: int, total_steps: int,
+                        history: str = "", conversation_history: str = "", tool_history: list = None, constraints: dict = None,
                         strategy_type: str = "explore", task_id: str = None, role: str = "fast",
                         replan_counter: int = 0, step_id: str = None) -> dict:
     """Tactical Execution of exactly one plan item (Phase 35)."""
@@ -172,6 +179,7 @@ def execute_single_step(task: str, step: str, step_idx: int, total_steps: int,
             f"Task: {task}\n"
             f"Planned Step {step_idx+1}: {step}\n"
             f"Current Step: {step_idx+1} of {total_steps}\n"
+            f"Conversation History (Last 5 turns): {conversation_history}\n"
             f"Successful History: {current_context}\n\n"
             "You are the EXECUTOR. You MUST follow the provided plan strictly.\n"
             "Output STRICT JSON:\n"
@@ -188,6 +196,7 @@ def execute_single_step(task: str, step: str, step_idx: int, total_steps: int,
             "  \"answer\": \"your final response if action=final\"\n"
             "}\n\n"
             "Tactical Rules:\n"
+            "- ENTITY NORMALIZATION: If a user-provided entity (location, person, organization, etc.) is misspelled or contains typos, you MUST normalize it to the correct canonical form before passing it as a tool argument. Never pass raw misspelled strings to APIs.\n"
             "- FILESYSTEM: ALWAYS provide JSON for write_file: {\"filename\": \"secret.txt\", \"content\": \"data\"}.\n"
             "- TOOL PRIORITY: Use 'write_file' for saving data. NEVER use 'python' for 'os.' or 'open()'.\n"
             "- PROGRESSION: Your tool input MUST be unique and more specific than previous steps.\n"
@@ -254,15 +263,8 @@ def execute_single_step(task: str, step: str, step_idx: int, total_steps: int,
                     current_context += f"\n[SYSTEM]: The tool could not find useful data. You MUST answer from your own knowledge."
                     continue
                 
-                # Successful tool call with real data -> finish step
-                res = {
-                    "status": "success", "executed_step": step, 
-                    "history_update": current_context, "tool_calls": tool_calls_this_step,
-                    "repeated_tool": repeated_detected, "answer": None,
-                    "model": resp_data.get("model"), "confidence": resp_data.get("confidence")
-                }
-                print("⚙️ EXECUTOR OUTPUT:", res)
-                return res
+                print(f"    ✅ [executor] Tool result received. Re-evaluating for multi-tool chain...")
+                continue # Continue the loop to allow the LLM to call more tools or synthesize
 
             elif action == "final" or use_llm_directly:
                 answer = action_data.get("answer", "")
@@ -324,7 +326,7 @@ def execute_single_step(task: str, step: str, step_idx: int, total_steps: int,
     
     return {"status": "failed", "reason": "Max retries hit and fallback synthesis failed."}
 
-def execute_plan(task: str, plan_data: dict, memory_context: str = "", task_id: str = None, replan_counter: int = 0) -> dict:
+def execute_plan(task: str, plan_data: dict, memory_context: str = "", conversation_history: str = "", task_id: str = None, replan_counter: int = 0) -> dict:
     """Legacy compatibility: Execute whole plan at once."""
     steps = plan_data.get("steps", [])
     constraints = plan_data.get("constraints", {})
@@ -339,7 +341,7 @@ def execute_plan(task: str, plan_data: dict, memory_context: str = "", task_id: 
 
     for i, step in enumerate(steps):
         print(f"  ⚙️ [executor] Step {i+1}/{len(steps)}: {step}")
-        res = execute_single_step(task, step, i, len(steps), current_context, tool_history, constraints, strategy_type, task_id=task_id)
+        res = execute_single_step(task, step, i, len(steps), current_context, conversation_history, tool_history, constraints, strategy_type, task_id=task_id)
         
         if res["status"] == "success":
             executed_steps.append(step)

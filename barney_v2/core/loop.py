@@ -13,6 +13,7 @@ import uuid
 import random
 import threading
 from core import planner_agent, executor_agent, critic, insight_engine
+from barney_v2.redis_client import get_user_history
 from core.insight_engine import get_task_type, get_task_condition
 from core.memory import Memory
 from core.strategy import select_strategy
@@ -217,7 +218,7 @@ def _build_generative_system_prompt(task: str) -> str:
         "Do not produce planning steps — produce the actual answer."
     )
 
-def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: bool = False, forced_outcome: dict = None, task_id: str = None) -> dict:
+def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: bool = False, forced_outcome: dict = None, task_id: str = None, user_id: str = "anonymous") -> dict:
     """
     Hardened Step-by-Step Governed Loop (Phase 12.5).
     """
@@ -831,7 +832,17 @@ Now provide a direct, factual answer:"""
         # Logic: First step and high-risk steps use Strong model (Llama 70b)
         # Routine middle steps use Fast model (Llama 8b)
         role_hint = "strong" if step_idx == 0 or risk["risk_score"] > 0.7 else "fast"
-        
+
+        # Conversation Context Retrieval (Chronological last 5 turns)
+        user_history = get_user_history(user_id)
+        conv_turns = []
+        # We take the 5 most recent tasks excluding the current one
+        for h in (user_history[1:6] if user_history else []):
+            q = h.get("task", "User: [query]")
+            a = h.get("result", "Barney: [no answer]")
+            conv_turns.append(f"User: {q}\nBarney: {a}")
+        conv_history_str = "\n---\n".join(conv_turns)
+
         # Phase 37: Heartbeat Thread for long-running steps
         stop_heartbeat = threading.Event()
         def lock_heartbeat():
@@ -850,9 +861,10 @@ Now provide a direct, factual answer:"""
 
         try:
             res_data = executor_agent.execute_single_step(
-                task, step, step_idx, len(state.plan), 
+                task, step, step_idx, len(state.plan),
                 history=state.history_text,
-                tool_history=[], 
+                conversation_history=conv_history_str,
+                tool_history=[],
                 constraints=state.constraints,
                 strategy_type=state.strategy_type,
                 task_id=state.task_id,

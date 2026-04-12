@@ -106,7 +106,7 @@ def start_worker():
                     update_task(task_id, "RUNNING", worker_id=WORKER_ID, user_id=user_id)
                     append_log(task_id, f"{tag_prefix} Executing Implementation Plan...")
                     
-                    result = run_task(task_input, task_id=task_id)
+                    result = run_task(task_input, task_id=task_id, user_id=user_id)
                     
                     # Terminal failure (BRAIN_DEAD) awareness
                     is_brain_dead = False
