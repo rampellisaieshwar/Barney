@@ -38,9 +38,9 @@ def search_memory(user_id: str, query: str) -> str:
         _ensure_collection()
         query_vector = model.encode(query).tolist()
         
-        results = client.search(
+        results = client.query_points(
             collection_name=COLLECTION_NAME,
-            query_vector=query_vector,
+            query=query_vector,
             query_filter=models.Filter(
                 must=[
                     models.FieldCondition(
@@ -49,14 +49,16 @@ def search_memory(user_id: str, query: str) -> str:
                     )
                 ]
             ),
-            limit=2
+            limit=2,
+            score_threshold=0.4
         )
         
-        if not results:
+        points = results.points if hasattr(results, "points") else []
+        if not points:
             return ""
             
         context = "\n--- RELEVANT PAST CONVERSATIONS ---\n"
-        for res in results:
+        for res in points:
             p = res.payload
             context += f"User: {p.get('task')}\nBarney: {p.get('answer')}\n"
         return context + "\n"
