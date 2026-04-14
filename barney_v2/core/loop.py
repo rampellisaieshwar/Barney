@@ -842,7 +842,7 @@ Now provide a direct, factual answer:"""
             a = h.get("result", "Barney: [no answer]")
             conv_turns.append(f"User: {q}\nBarney: {a}")
         conv_history_str = "\n---\n".join(conv_turns)
-        
+
         # Augment with Qdrant semantic memory
         try:
             from core.qdrant_memory import search_memory

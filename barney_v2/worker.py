@@ -171,7 +171,7 @@ def start_worker():
                         preview = answer_val[:100].replace('\n', ' ')
                         logger.info(f"  [FINAL] Answer type: {type(answer_val).__name__}, preview: {preview}")
                         update_task(task_id, "DONE", flat_result, worker_id=WORKER_ID, user_id=user_id)
-                        
+
                         # Save to Qdrant semantic memory
                         try:
                             from core.qdrant_memory import save_conversation
