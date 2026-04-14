@@ -1,7 +1,32 @@
+# Environment
 .env
+
+# Legacy test scripts (Cleanup leftovers)
 test_communication.py
 test_doc_processor.py
 test_multiagent.py
 test_planner.py
+test_phase*.py
+run_test*.py
+debug_*.py
+
+# Virtual Environment
 venv/
-venv/
+.venv/
+
+# OS Junk
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs & Traces
+*.log
+*debug_trace*.txt
+
+# Runtime Data (Persistence)
+# Preventing data leaks of memory and local state
+barney_v2/barney_data/

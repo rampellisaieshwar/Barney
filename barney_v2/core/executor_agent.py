@@ -197,6 +197,7 @@ def execute_single_step(task: str, step: str, step_idx: int, total_steps: int,
             "}\n\n"
             "Tactical Rules:\n"
             "- ENTITY NORMALIZATION: If a user-provided entity (location, person, organization, etc.) is misspelled or contains typos, you MUST normalize it to the correct canonical form before passing it as a tool argument. Never pass raw misspelled strings to APIs.\n"
+            "- FOLLOW-UP INTENT: If the current task is a short follow-up (e.g., 'what about X?', 'and Y?', 'how about Z?'), you MUST infer the full intent from 'Conversation History'. Carry over the same action/tool/intent as the previous turn, substituting only the new entity.\n"
             "- FILESYSTEM: ALWAYS provide JSON for write_file: {\"filename\": \"secret.txt\", \"content\": \"data\"}.\n"
             "- TOOL PRIORITY: Use 'write_file' for saving data. NEVER use 'python' for 'os.' or 'open()'.\n"
             "- PROGRESSION: Your tool input MUST be unique and more specific than previous steps.\n"

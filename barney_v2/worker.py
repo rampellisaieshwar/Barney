@@ -2,8 +2,16 @@ import time
 import json
 import uuid
 import os
+import logging
 from pathlib import Path
 from dotenv import load_dotenv
+
+# Configure basic logging for observability
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 env_path = Path(__file__).parent.parent / ".env"
 load_dotenv(env_path)
@@ -131,7 +139,8 @@ def start_worker():
                             "tools_used": 0,
                             "response_time_ms": 0
                         }
-                        print(f"  [FINAL] Answer type: {type(error_answer).__name__}, preview: {error_answer[:100].replace('\n', ' ')}")
+                        preview = error_answer[:100].replace('\n', ' ')
+                        logger.info(f"  [FINAL] Answer type: {type(error_answer).__name__}, preview: {preview}")
                         update_task(task_id, "FAILED", flat_result, worker_id=WORKER_ID, user_id=user_id)
                     else:
                         print(f"✅ [worker {WORKER_ID}] Task {task_id} completed.")
@@ -159,7 +168,8 @@ def start_worker():
                         }
                         
                         # [FINAL] Contract Logging (Requirement #7)
-                        print(f"  [FINAL] Answer type: {type(answer_val).__name__}, preview: {answer_val[:100].replace('\n', ' ')}")
+                        preview = answer_val[:100].replace('\n', ' ')
+                        logger.info(f"  [FINAL] Answer type: {type(answer_val).__name__}, preview: {preview}")
                         update_task(task_id, "DONE", flat_result, worker_id=WORKER_ID, user_id=user_id)
                         
                 except Exception as eval_err:

@@ -7,15 +7,23 @@ import time
 import os
 import uuid
 import json
+import logging
 from dotenv import load_dotenv
 from pathlib import Path
+
+# Configure basic logging for observability
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 env_path = Path(__file__).parent.parent / ".env"
 load_dotenv(env_path)
 
-print("🚀 Barney v2 API started")
-print("🔗 Connect to Redis at: " + str(os.getenv("REDIS_HOST", "localhost")))
-print("🧠 LLM interface ready")
+logger.info("🚀 Barney v2 API started")
+logger.info("🔗 Connect to Redis at: " + str(os.getenv("REDIS_HOST", "localhost")))
+logger.info("🧠 LLM interface ready")
 
 from redis_client import (
     enqueue_task, get_task, is_rate_limited, 

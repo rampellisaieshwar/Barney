@@ -5,24 +5,27 @@ Stores atomized learnings and tracks performance scores based on
 Harsh Execution Success + Outcome Valuation mapping. (Stress Test Layer #4 & #6)
 """
 
-import json
-import os
-
+from pathlib import Path
 
 class Memory:
     def __init__(self, filepath: str = None):
         if filepath is None:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            filepath = os.path.join(base_dir, "memory.json")
+            # Robust, location-independent path calculation
+            base_dir = Path(__file__).resolve().parent.parent
+            self.filepath = base_dir / "barney_data" / "memory.json"
+        else:
+            self.filepath = Path(filepath)
         
-        self.filepath = filepath
+        # Ensure parent directory exists (Cold Start Safety)
+        self.filepath.parent.mkdir(parents=True, exist_ok=True)
+        
         self._store = []
         self._stats = {} # Cached stats
         self._load()
 
     def _load(self):
         """Load insights from memory.json."""
-        if os.path.exists(self.filepath):
+        if self.filepath.exists():
             try:
                 with open(self.filepath, "r") as f:
                     self._store = json.load(f)
@@ -55,8 +58,8 @@ class Memory:
 
     def clear(self):
         self._store = []
-        if os.path.exists(self.filepath):
-            os.remove(self.filepath)
+        if self.filepath.exists():
+            self.filepath.unlink()
         self._stats = {}
         print("  🧹 [memory] Cleared all insights.")
 
