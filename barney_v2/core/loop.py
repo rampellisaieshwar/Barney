@@ -842,6 +842,15 @@ Now provide a direct, factual answer:"""
             a = h.get("result", "Barney: [no answer]")
             conv_turns.append(f"User: {q}\nBarney: {a}")
         conv_history_str = "\n---\n".join(conv_turns)
+        
+        # Augment with Qdrant semantic memory
+        try:
+            from core.qdrant_memory import search_memory
+            semantic_context = search_memory(user_id, task)
+            if semantic_context:
+                conv_history_str = semantic_context + conv_history_str
+        except Exception as qe:
+            print(f"  ⚠️ [qdrant_memory] search skipped: {qe}")
 
         # Phase 37: Heartbeat Thread for long-running steps
         stop_heartbeat = threading.Event()

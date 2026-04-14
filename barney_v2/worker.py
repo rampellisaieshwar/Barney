@@ -172,6 +172,13 @@ def start_worker():
                         logger.info(f"  [FINAL] Answer type: {type(answer_val).__name__}, preview: {preview}")
                         update_task(task_id, "DONE", flat_result, worker_id=WORKER_ID, user_id=user_id)
                         
+                        # Save to Qdrant semantic memory
+                        try:
+                            from core.qdrant_memory import save_conversation
+                            save_conversation(user_id, task_input, answer_val)
+                        except Exception as qe:
+                            print(f"  ⚠️ [qdrant_memory] save skipped: {qe}")
+                        
                 except Exception as eval_err:
                     error_msg = f"❌ {tag_prefix} Execution error: {str(eval_err)}"
                     print(f"  [worker {WORKER_ID}] {error_msg}")
