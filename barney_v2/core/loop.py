@@ -13,7 +13,7 @@ import uuid
 import random
 import threading
 from core import planner_agent, executor_agent, critic, insight_engine
-from barney_v2.redis_client import get_user_history
+from redis_client import get_user_history
 from core.insight_engine import get_task_type, get_task_condition
 from core.memory import Memory
 from core.strategy import select_strategy
