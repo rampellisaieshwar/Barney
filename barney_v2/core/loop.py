@@ -378,6 +378,14 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
         )
         
         state.meta["confidence_type"] = "normal"
+
+        # Personal query guard: bypass generative preempt for memory-dependent queries
+        _personal_signals = ["my favorite", "i like", "i prefer", "i told", "what is my",
+                             "what's my", "do i", "my name", "remember", "i said", "i mentioned"]
+        _is_personal = any(s in task.lower() for s in _personal_signals)
+        if _is_personal:
+            print(f"  🧠 [loop] Personal query detected. Bypassing generative preempt.")
+            state.is_generative_override = False
         
         if state.is_generative_override:
             print(f"  ⚡ [MODE] GENERATIVE PREEMPT engaged for: {task[:40]}...")
