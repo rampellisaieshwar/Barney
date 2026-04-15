@@ -294,6 +294,13 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
             "response_time_ms": int((time.time() - run_start_time) * 1000)
         }
 
+    # Personal question guard: bypass generative preempt
+    _personal_q = ["my favorite", "what is my", "what's my", "do i have",
+                   "my name", "what did i", "i told you", "remember when"]
+    _force_personal_planner = any(s in task.lower() for s in _personal_q)
+    if _force_personal_planner:
+        print(f"  🧠 [loop] Personal query guard (early). Forcing planner path.")
+
     # Personal statement shortcut: "my X is Y", "I like X", "I am X"
     import re as _re2
     _statement_patterns = [
@@ -355,6 +362,9 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
         state.status = "PLANNING"
 
     state.semantic_context = _semantic_ctx
+    if _force_personal_planner:
+        state.is_generative_override = False
+        state.is_hybrid_fallback = False
 
     # 2. Planning Phase
     if state.status == "PLANNING":
@@ -404,14 +414,10 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
         )
         
         state.meta["confidence_type"] = "normal"
-
-        # Personal query guard: bypass generative preempt for memory-dependent queries
-        _personal_signals = ["my favorite", "i like", "i prefer", "i told", "what is my",
-                             "what's my", "do i", "my name", "remember", "i said", "i mentioned"]
-        _is_personal = any(s in task.lower() for s in _personal_signals)
-        if _is_personal:
-            print(f"  🧠 [loop] Personal query detected. Bypassing generative preempt.")
+        if _force_personal_planner:
+            print(f"  🧠 [loop] Personal query guard applied after classification.")
             state.is_generative_override = False
+            state.is_hybrid_fallback = False
         
         if state.is_generative_override:
             print(f"  ⚡ [MODE] GENERATIVE PREEMPT engaged for: {task[:40]}...")
