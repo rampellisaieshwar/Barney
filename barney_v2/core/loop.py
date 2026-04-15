@@ -294,6 +294,29 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
             "response_time_ms": int((time.time() - run_start_time) * 1000)
         }
 
+    # Personal statement shortcut: "my X is Y", "I like X", "I am X"
+    import re as _re2
+    _statement_patterns = [
+        r"^my .+ is .+", r"^i like .+", r"^i prefer .+",
+        r"^i am .+", r"^my name is .+", r"^i love .+", r"^i hate .+"
+    ]
+    _is_statement = any(_re2.match(p, task.lower().strip()) for p in _statement_patterns)
+    if _is_statement:
+        print(f"  📝 [loop] Personal statement detected. Acknowledging and saving.")
+        try:
+            from core.qdrant_memory import save_conversation
+            save_conversation(user_id, task, f"User stated: {task}")
+        except Exception as _se:
+            print(f"  ⚠️ [qdrant_memory] save skipped: {_se}")
+        return {
+            "status": "DONE",
+            "answer": "Got it, I'll remember that!",
+            "confidence": 1.0,
+            "steps": 0,
+            "tools_used": 0,
+            "response_time_ms": int((time.time() - run_start_time) * 1000)
+        }
+
     # 1. Initialize or Resume State (Phase 31: Reliability & Replay)
     from redis_client import get_task, update_task, append_log, record_model_experience
     
