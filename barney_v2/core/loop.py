@@ -180,7 +180,16 @@ def _standardize_final_return(status: str, answer: any, confidence: float = 0.9,
     res.update(kwargs)
     return res
 
-def _build_generative_system_prompt(task: str) -> str:
+def _build_generative_system_prompt(task: str, memory_context: str = "") -> str:
+    memory_block = ""
+    if memory_context:
+        memory_block = (
+            f"\n\n### CONTEXTUAL MEMORY\n"
+            f"The following is retrieved from this user's past conversations. "
+            f"If relevant to the query, you MUST prioritize this over your general knowledge:\n"
+            f"{memory_context}\n"
+            f"### END MEMORY\n"
+        )
     t = task.lower()
     code_signals = [
         "write", "code", "script", "function", "program", "implement",
@@ -199,23 +208,27 @@ def _build_generative_system_prompt(task: str) -> str:
             f"The user wants working {lang} code. "
             f"Respond with ONLY the code in a fenced code block, then a brief explanation after it. "
             f"Do NOT produce step-by-step English plans. Write complete, runnable code immediately."
+            f"{memory_block}"
         )
     creative_signals = ["write a", "write an", "story", "poem", "essay", "draft", "compose"]
     if any(s in t for s in creative_signals):
         return (
             "You are a skilled writer. Produce the requested creative content directly. "
             "Do not explain your approach — just write the content."
+            f"{memory_block}"
         )
     math_signals = ["calculate", "compute", "solve", "formula", "equation"]
     if any(s in t for s in math_signals):
         return (
             "You are a precise mathematician. Show working step-by-step, "
             "then give the final numerical answer clearly."
+            f"{memory_block}"
         )
     return (
         "You are Barney, a highly capable AI assistant. "
         "Answer the following request fully, directly, and in the most useful format. "
         "Do not produce planning steps — produce the actual answer."
+        f"{memory_block}"
     )
 
 def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: bool = False, forced_outcome: dict = None, task_id: str = None, user_id: str = "anonymous") -> dict:
@@ -371,7 +384,13 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
             append_log(state.task_id, "⚡ [MODE] GENERATIVE PREEMPT: Direct synthesis, bypassing planner")
 
             from core.llm import call_llm
-            gen_sys = _build_generative_system_prompt(task)
+            _mem_ctx = ""
+            try:
+                from core.qdrant_memory import search_memory
+                _mem_ctx = search_memory(user_id, task)
+            except Exception:
+                pass
+            gen_sys = _build_generative_system_prompt(task, memory_context=_mem_ctx)
             gen_res = call_llm(task, system_prompt=gen_sys, role="strong", task_id=state.task_id)
             state.result = gen_res.get("content", "I encountered an error during synthesis.")
             state.confidence = max(gen_res.get("confidence", 0.85), 0.85)
