@@ -5,6 +5,7 @@ Stores atomized learnings and tracks performance scores based on
 Harsh Execution Success + Outcome Valuation mapping. (Stress Test Layer #4 & #6)
 """
 
+import json
 from pathlib import Path
 
 class Memory:
