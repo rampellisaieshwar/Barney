@@ -297,6 +297,7 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
     # 1. Initialize or Resume State (Phase 31: Reliability & Replay)
     from redis_client import get_task, update_task, append_log, record_model_experience
     
+    _semantic_ctx = ""
     # Qdrant Semantic Memory: Augment task with relevant past context (runs for ALL paths)
     try:
         from core.qdrant_memory import search_memory
@@ -329,6 +330,8 @@ def run_task(task: str, mode: str = "real", state_dict: dict = None, test_mode: 
     else:
         state = ExecutionState(task, task_id=task_id)
         state.status = "PLANNING"
+
+    state.semantic_context = _semantic_ctx
 
     # 2. Planning Phase
     if state.status == "PLANNING":
@@ -665,6 +668,8 @@ Now provide a direct, factual answer:"""
             
             # Phase 12: Pass search insights and pre-search grounding to the planner
             memory_context = "\n".join([str(ins) for ins in prior_insights]) if prior_insights else ""
+            if hasattr(state, 'semantic_context') and state.semantic_context:
+                memory_context += f"\n\nUSER MEMORY:\n{state.semantic_context}"
             if state.history_text:
                 memory_context += f"\n--- PRE-SEARCH GROUNDING ---\n{state.history_text}\n"
                 
