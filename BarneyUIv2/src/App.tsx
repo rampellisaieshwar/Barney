@@ -1,9 +1,8 @@
-import { styled } from './styles/theme';
-import { globalStyles } from './styles/theme';
+import { styled, globalStyles, ThemeProvider } from './styles/theme';
 import { MainCanvas } from './components/MainCanvas';
 import { ChatInterface } from './components/ChatInterface';
 import { Sidebar } from './components/Sidebar';
-import { ThemeProvider } from './styles/theme';
+import { SettingsDrawer } from './components/SettingsDrawer';
 
 const PerspectiveContainer = styled('div', {
   width: '100vw',
@@ -47,6 +46,7 @@ function App() {
             <MainContent>
               <ChatInterface />
             </MainContent>
+            <SettingsDrawer />
           </AppContainer>
         </MainCanvas>
       </PerspectiveContainer>

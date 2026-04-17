@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import type { Message, PlanStep } from '../types';
 import { sendMessage, createMessage } from '../services/api';
-import { SettingsDrawer } from './SettingsDrawer';
 
 const ChatWrapper = styled('div', {
   display: 'flex',
@@ -452,8 +451,6 @@ export function ChatInterface() {
           </SendButton>
         </InputWrapper>
       </InputArea>
-      
-      <SettingsDrawer />
     </ChatWrapper>
   );
 }

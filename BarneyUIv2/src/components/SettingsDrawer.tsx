@@ -4,18 +4,19 @@ import { useState } from 'react';
 
 const SettingsContainer = styled(motion.aside, {
   position: 'fixed',
-  right: '$4',
+  right: '0', // Flush to edge
   top: '$6',
   bottom: '$6',
   width: '420px',
   background: 'rgba(10, 9, 8, 0.4)',
   backdropFilter: 'blur(30px) saturate(150%)',
   border: '1px solid rgba(255, 255, 255, 0.1)',
-  borderRadius: '24px',
+  borderRight: 'none', // Remove right border for seamless edge
+  borderRadius: '32px 0 0 32px', // Rounded only on the inner edge
   display: 'flex',
   flexDirection: 'column',
   zIndex: 1000,
-  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+  boxShadow: '-20px 20px 40px rgba(0, 0, 0, 0.4)',
   transformStyle: 'preserve-3d',
   overflow: 'hidden',
 
