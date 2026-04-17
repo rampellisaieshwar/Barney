@@ -25,7 +25,7 @@ function App() {
   globalStyles();
 
   return (
-    <ThemeProvider>
+    <ThemeProvider.Provider value={{}}>
       <AppContainer>
         <Sidebar />
         <MainContent>
@@ -34,7 +34,7 @@ function App() {
           </MainCanvas>
         </MainContent>
       </AppContainer>
-    </ThemeProvider>
+    </ThemeProvider.Provider>
   );
 }
 

@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd BarneyUIv2 && npm install && npm run build",
+  "outputDirectory": "BarneyUIv2/dist",
+  "framework": "vite"
+}
