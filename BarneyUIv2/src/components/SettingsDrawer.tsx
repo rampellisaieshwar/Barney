@@ -4,8 +4,8 @@ import { styled } from '../styles/theme';
 const DrawerOverlay = styled(motion.div, {
   position: 'fixed',
   inset: 0,
-  background: 'rgba(0, 0, 0, 0.6)',
-  backdropFilter: 'blur(15px)',
+  background: 'rgba(0, 0, 0, 0.7)', // Slightly darker for better focus
+  backdropFilter: 'blur(12px)',
   zIndex: 10000,
 });
 
@@ -14,8 +14,10 @@ const DrawerContent = styled(motion.div, {
   left: '50%',
   top: '50%',
   width: '450px',
+  maxHeight: '85vh',
+  overflowY: 'auto',
   background: 'rgba(10, 9, 8, 0.4)',
-  backdropFilter: 'blur(25px) saturate(150%)',
+  backdropFilter: 'blur(30px) saturate(150%)',
   border: '1px solid rgba(255, 255, 255, 0.1)',
   zIndex: 10001,
   padding: '$10 $8',
@@ -23,8 +25,12 @@ const DrawerContent = styled(motion.div, {
   display: 'flex',
   flexDirection: 'column',
   gap: '$8',
-  boxShadow: '0 40px 100px rgba(0, 0, 0, 0.8)',
+  boxShadow: '0 50px 100px rgba(0, 0, 0, 0.9)',
   transformStyle: 'preserve-3d',
+  
+  '&::-webkit-scrollbar': {
+    width: '0px',
+  },
 });
 
 const DrawerHeader = styled('div', {
@@ -128,9 +134,9 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
             onClick={onClose}
           />
           <DrawerContent
-            initial={{ opacity: 0, scale: 0.8, x: '-50%', y: '-40%', translateZ: 100 }}
-            animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%', translateZ: 400 }}
-            exit={{ opacity: 0, scale: 0.8, x: '-50%', y: '-40%', translateZ: 100 }}
+            initial={{ opacity: 0, scale: 0.95, x: '-50%', y: '-48%' }}
+            animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
+            exit={{ opacity: 0, scale: 0.95, x: '-50%', y: '-48%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
           >
             <DrawerHeader>

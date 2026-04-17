@@ -101,18 +101,41 @@ export function MainCanvas({
     if (!context) return;
 
     const render = () => {
+      canvas.width = window.innerWidth * window.devicePixelRatio;
+      canvas.height = window.innerHeight * window.devicePixelRatio;
+      
       const index = Math.min(Math.floor(frameIndex.get()), frameCount - 1);
       const image = images[index];
+
       if (image && image.complete) {
-        canvas.width = window.innerWidth * window.devicePixelRatio;
-        canvas.height = window.innerHeight * window.devicePixelRatio;
-        
         const scale = Math.max(canvas.width / image.width, canvas.height / image.height);
         const x = (canvas.width / 2) - (image.width / 2) * scale;
         const y = (canvas.height / 2) - (image.height / 2) * scale;
         
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(image, x, y, image.width * scale, image.height * scale);
+      } else {
+        // High-end cinematic fallback
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        const gradient = context.createRadialGradient(
+          canvas.width / 2, canvas.height / 2, 0,
+          canvas.width / 2, canvas.height / 2, canvas.width
+        );
+        const shift = scrollYProgress.get() * 20;
+        gradient.addColorStop(0, '#0a0908');
+        gradient.addColorStop(0.5, '#050404');
+        gradient.addColorStop(1, '#000000');
+        
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Subtle ambient glow
+        context.globalAlpha = 0.05 + Math.sin(Date.now() / 2000) * 0.02;
+        context.fillStyle = '#d4a574';
+        context.beginPath();
+        context.arc(canvas.width / 2, (canvas.height / 2) + shift, canvas.width / 3, 0, Math.PI * 2);
+        context.fill();
+        context.globalAlpha = 1.0;
       }
       requestAnimationFrame(render);
     };
