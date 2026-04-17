@@ -166,6 +166,7 @@ const StepIndicator = styled('div', {
       completed: { background: '$success' },
       failed: { background: '$error' },
       blocked: { background: '$warning' },
+      rejected: { background: '$error' },
     },
   },
 

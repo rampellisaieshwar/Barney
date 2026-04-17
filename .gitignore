@@ -30,3 +30,5 @@ __pycache__/
 # Runtime Data (Persistence)
 # Preventing data leaks of memory and local state
 barney_v2/barney_data/
+
+.vercel
