@@ -11,11 +11,13 @@ const PerspectiveContainer = styled('div', {
   perspective: '2000px',
   overflow: 'hidden',
   background: '$backgroundDeep',
+  position: 'fixed',
+  inset: 0,
 });
 
 const AppContainer = styled('div', {
-  width: '100%',
-  height: '100%',
+  width: '100vw',
+  height: '100vh',
   display: 'flex',
   justifyContent: 'center',
   position: 'relative',
@@ -24,7 +26,7 @@ const AppContainer = styled('div', {
 
 const MainContent = styled('main', {
   width: '100%',
-  maxWidth: '1200px',
+  maxWidth: '900px', // Adjusted to 900px as per cinematic requirements
   height: '100vh',
   display: 'flex',
   flexDirection: 'column',

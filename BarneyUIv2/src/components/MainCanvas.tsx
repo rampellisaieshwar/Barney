@@ -28,13 +28,15 @@ const DepthOverlay = styled('div', {
   pointerEvents: 'none',
 });
 
-const Stage = styled('div', {
+const UIStage = styled('div', {
   position: 'relative',
   width: '100%',
   height: '100%',
   zIndex: 1,
   transformStyle: 'preserve-3d',
 });
+
+const Stage = motion(UIStage);
 
 interface MainCanvasProps {
   children?: React.ReactNode;
@@ -58,12 +60,16 @@ export function MainCanvas({
   // Map scroll to frame index
   const frameIndex = useTransform(scrollYProgress, [0, 1], [0, frameCount - 1]);
 
-  // Map mouse movement to subtle 3D tilt
-  const rotateX = useTransform(mouseY, [-0.5, 0.5], [5, -5]);
-  const rotateY = useTransform(mouseX, [-0.5, 0.5], [-5, 5]);
+  // Map mouse movement to subtle 3D tilt for the WHOLE UI
+  const rotateX = useTransform(mouseY, [-0.5, 0.5], [4, -4]); 
+  const rotateY = useTransform(mouseX, [-0.5, 0.5], [-6, 6]);
+
+  // Map mouse movement for the background (more exaggerated for parallax)
+  const bgRotateX = useTransform(mouseY, [-0.5, 0.5], [6, -6]);
+  const bgRotateY = useTransform(mouseX, [-0.5, 0.5], [-8, 8]);
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1.05, 1.15]);
 
   useEffect(() => {
-    // Preload images
     const loadedImages: HTMLImageElement[] = [];
     let loadedCount = 0;
 
@@ -72,13 +78,9 @@ export function MainCanvas({
         img.src = `${basePath}${i.toString().padStart(4, '0')}.jpg`;
         img.onload = () => {
           loadedCount++;
-          if (loadedCount === frameCount) {
-             setImages(loadedImages);
-          }
+          if (loadedCount === frameCount) setImages(loadedImages);
         };
-        img.onerror = () => {
-           loadedCount++;
-        };
+        img.onerror = () => loadedCount++;
         loadedImages[i] = img;
     }
 
@@ -99,7 +101,7 @@ export function MainCanvas({
     if (!context) return;
 
     const render = () => {
-      const index = Math.floor(frameIndex.get());
+      const index = Math.min(Math.floor(frameIndex.get()), frameCount - 1);
       const image = images[index];
       if (image && image.complete) {
         canvas.width = window.innerWidth * window.devicePixelRatio;
@@ -117,20 +119,32 @@ export function MainCanvas({
 
     const animFrame = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animFrame);
-  }, [images, frameIndex]);
+  }, [images, frameIndex, frameCount]);
 
   return (
     <CanvasWrapper>
       <StyledCanvas
         ref={canvasRef}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         style={{
-          rotateX,
-          rotateY,
-          scale: 1.05,
+          rotateX: bgRotateX,
+          rotateY: bgRotateY,
+          scale: bgScale,
+          transformPerspective: 1000,
         }}
       />
       <DepthOverlay />
-      <Stage>{children}</Stage>
+      <Stage
+        style={{
+          rotateX,
+          rotateY,
+          transformPerspective: 1000,
+        }}
+        transition={{ type: 'spring', stiffness: 50, damping: 20 }}
+      >
+        {children}
+      </Stage>
     </CanvasWrapper>
   );
 }

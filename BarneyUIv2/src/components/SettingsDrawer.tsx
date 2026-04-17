@@ -11,19 +11,20 @@ const DrawerOverlay = styled(motion.div, {
 
 const DrawerContent = styled(motion.div, {
   position: 'fixed',
-  right: 0,
-  top: 0,
-  bottom: 0,
-  width: '400px',
-  background: '$glassBackground',
-  backdropFilter: 'blur(60px)',
-  borderLeft: '1px solid $glassBorder',
+  left: '50%',
+  top: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '450px',
+  background: 'rgba(10, 9, 8, 0.4)',
+  backdropFilter: 'blur(25px) saturate(150%)',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
   zIndex: 1001,
   padding: '$10 $8',
+  borderRadius: '32px',
   display: 'flex',
   flexDirection: 'column',
   gap: '$8',
-  boxShadow: '-10px 0 40px rgba(0,0,0,0.5)',
+  boxShadow: '0 30px 60px rgba(0, 0, 0, 0.6)',
   transformStyle: 'preserve-3d',
 });
 

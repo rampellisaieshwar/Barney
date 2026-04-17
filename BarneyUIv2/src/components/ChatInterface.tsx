@@ -20,42 +20,47 @@ const ChatWrapper = styled('div', {
 
 const ChatHeader = styled('header', {
   display: 'flex',
+  flexDirection: 'column',
   alignItems: 'center',
-  gap: '$4',
-  padding: '$6 0',
-  marginBottom: '$4',
-  borderBottom: '1px solid $glassBorder',
-  transform: 'translateZ(20px)',
+  gap: '$2',
+  padding: '$10 0',
+  marginBottom: '$6',
+  borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+  transform: 'translateZ(40px)',
+  textAlign: 'center',
 });
 
 const LogoMark = styled('div', {
-  width: '42px',
-  height: '42px',
-  borderRadius: '$lg',
+  width: '32px',
+  height: '32px',
+  borderRadius: '6px',
   background: 'linear-gradient(135deg, $amberWarm, $amberFire)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   fontFamily: '$display',
   fontWeight: 700,
-  fontSize: '$lg',
+  fontSize: '14px',
   color: '$backgroundDeep',
-  boxShadow: '0 0 20px $copperGlow',
+  boxShadow: '0 0 20px rgba(212, 165, 116, 0.4)',
+  marginBottom: '$2',
 });
 
 const HeaderText = styled('div', {
   '& h1': {
     fontFamily: '$display',
-    fontSize: '$xl',
-    fontWeight: 600,
+    fontSize: '1.8rem',
+    fontWeight: 800,
     color: '$textPrimary',
-    letterSpacing: '-0.03em',
+    letterSpacing: '0.2em',
+    textTransform: 'uppercase',
   },
   '& p': {
-    fontSize: '$sm',
-    color: '$textSecondary',
-    fontStyle: 'italic',
-    opacity: 0.8,
+    fontSize: '11px',
+    color: '$amberWarm',
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
+    opacity: 0.6,
   },
 });
 
@@ -80,25 +85,24 @@ const MessageGroup = styled(motion.div, {
 });
 
 const MessageBubble = styled(motion.div, {
-  maxWidth: '80%',
-  padding: '$5 $6',
-  borderRadius: '$xl',
+  maxWidth: '85%',
+  padding: '$6 $8',
+  borderRadius: '20px',
   position: 'relative',
-  backdropFilter: 'blur(40px)',
+  background: 'rgba(10, 9, 8, 0.4)',
+  backdropFilter: 'blur(25px) saturate(150%)',
   transformStyle: 'preserve-3d',
-  boxShadow: '$deep',
+  boxShadow: '0 15px 35px rgba(0, 0, 0, 0.3)',
+  border: '1px solid rgba(255, 255, 255, 0.05)',
 
   variants: {
     role: {
       user: {
-        background: 'linear-gradient(135deg, rgba(212, 165, 116, 0.15), rgba(184, 115, 51, 0.1))',
-        border: '1px solid $glassBorder',
+        background: 'rgba(212, 165, 116, 0.08)',
         borderRight: '2px solid $amberWarm',
         marginLeft: 'auto',
       },
       assistant: {
-        background: '$glassBackground',
-        border: '1px solid $glassBorder',
         borderLeft: '2px solid $copper',
       },
     },
