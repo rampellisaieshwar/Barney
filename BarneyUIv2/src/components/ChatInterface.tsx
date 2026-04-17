@@ -226,7 +226,7 @@ const InputArea = styled('div', {
   zIndex: 20,
 });
 
-const InputWrapper = styled('div', {
+const InputWrapper = styled(motion.div, {
   display: 'flex',
   gap: '$4',
   alignItems: 'flex-end',
