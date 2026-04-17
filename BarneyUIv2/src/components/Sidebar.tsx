@@ -2,7 +2,7 @@ import { styled } from '../styles/theme';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
-const SidebarContainer = styled(motion.aside', {
+const SidebarContainer = styled(motion.aside, {
   position: 'fixed',
   left: 0,
   top: 0,
@@ -49,7 +49,7 @@ const NavSectionTitle = styled('h3', {
   padding: '$2 $3',
 });
 
-const NavItem = styled(motion.button', {
+const NavItem = styled(motion.button, {
   width: '100%',
   display: 'flex',
   alignItems: 'center',
@@ -81,7 +81,7 @@ const NavItem = styled(motion.button', {
   },
 });
 
-const HistoryItem = styled(motion.button', {
+const HistoryItem = styled(motion.button, {
   width: '100%',
   display: 'flex',
   alignItems: 'center',

@@ -243,7 +243,7 @@ const Input = styled('textarea', {
   },
 });
 
-const SendButton = styled(motion.button', {
+const SendButton = styled(motion.button, {
   width: '44px',
   height: '44px',
   borderRadius: '$lg',
