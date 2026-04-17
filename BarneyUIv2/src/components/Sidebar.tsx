@@ -4,78 +4,90 @@ import { useState } from 'react';
 
 const SidebarContainer = styled(motion.aside, {
   position: 'fixed',
-  left: 0,
-  top: 0,
-  bottom: 0,
-  width: '280px',
+  left: '$6',
+  top: '$6',
+  bottom: '$6',
+  width: '240px',
   background: '$glassBackground',
-  backdropFilter: 'blur(30px)',
-  borderRight: '1px solid $glassBorder',
+  backdropFilter: 'blur(45px)',
+  border: '1px solid $glassBorder',
+  borderRadius: '$2xl',
   display: 'flex',
   flexDirection: 'column',
   zIndex: 100,
   transition: '$slow',
+  boxShadow: '$deep',
+  transformStyle: 'preserve-3d',
 });
 
 const SidebarHeader = styled('div', {
-  padding: '$6',
+  padding: '$8 $6',
   borderBottom: '1px solid $glassBorder',
+  transform: 'translateZ(10px)',
 });
 
 const SidebarTitle = styled('h2', {
   fontFamily: '$display',
-  fontSize: '$md',
-  fontWeight: 600,
+  fontSize: '1.2rem',
+  fontWeight: 700,
   color: '$textPrimary',
-  letterSpacing: '-0.01em',
+  letterSpacing: '-0.04em',
+  textTransform: 'uppercase',
 });
 
 const SidebarNav = styled('nav', {
   flex: 1,
-  padding: '$4',
+  padding: '$6 $4',
   overflowY: 'auto',
+  '&::-webkit-scrollbar': {
+    width: '0px',
+  },
 });
 
 const NavSection = styled('div', {
-  marginBottom: '$6',
+  marginBottom: '$8',
 });
 
 const NavSectionTitle = styled('h3', {
-  fontSize: '$xs',
-  fontWeight: 600,
+  fontSize: '10px',
+  fontWeight: 700,
   textTransform: 'uppercase',
-  letterSpacing: '0.08em',
+  letterSpacing: '0.15em',
   color: '$textMuted',
-  padding: '$2 $3',
+  padding: '$2 $4',
+  marginBottom: '$2',
 });
 
 const NavItem = styled(motion.button, {
   width: '100%',
   display: 'flex',
   alignItems: 'center',
-  gap: '$3',
-  padding: '$3 $4',
-  borderRadius: '$lg',
+  gap: '$4',
+  padding: '$4 $5',
+  borderRadius: '$xl',
   border: 'none',
   background: 'transparent',
   color: '$textSecondary',
   fontFamily: '$body',
   fontSize: '$sm',
+  fontWeight: 500,
   textAlign: 'left',
   cursor: 'pointer',
-  transition: '$fast',
+  transition: '$medium',
 
   '&:hover': {
     background: '$glassHighlight',
     color: '$textPrimary',
+    transform: 'translateZ(5px)',
   },
 
   variants: {
     active: {
       true: {
-        background: 'rgba(212, 165, 116, 0.1)',
+        background: 'rgba(212, 165, 116, 0.08)',
         color: '$amberWarm',
-        borderLeft: '2px solid $amberWarm',
+        borderLeft: '3px solid $amberWarm',
+        boxShadow: 'inset 4px 0 10px rgba(212, 165, 116, 0.05)',
       },
     },
   },
@@ -86,7 +98,7 @@ const HistoryItem = styled(motion.button, {
   display: 'flex',
   alignItems: 'center',
   gap: '$3',
-  padding: '$3 $4',
+  padding: '$3 $5',
   borderRadius: '$lg',
   border: 'none',
   background: 'transparent',
@@ -108,11 +120,13 @@ const HistoryItem = styled(motion.button, {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+    opacity: 0.7,
   },
 });
 
 const AgentStatus = styled('div', {
-  padding: '$4 $6',
+  padding: '$6 0',
+  margin: '0 $6',
   borderTop: '1px solid $glassBorder',
   display: 'flex',
   alignItems: 'center',
@@ -120,11 +134,17 @@ const AgentStatus = styled('div', {
 });
 
 const StatusDot = styled('div', {
-  width: '8px',
-  height: '8px',
+  width: '10px',
+  height: '10px',
   borderRadius: '$full',
-  background: '$success',
-  boxShadow: '0 0 8px $success',
+  background: '$amberFire',
+  boxShadow: '0 0 12px $amberFire',
+  animation: 'pulseStatus 2s infinite',
+
+  '@keyframes pulseStatus': {
+    '0%, 100%': { opacity: 1, transform: 'scale(1)' },
+    '50%': { opacity: 0.6, transform: 'scale(0.8)' },
+  },
 });
 
 export function Sidebar() {
@@ -132,91 +152,82 @@ export function Sidebar() {
 
   return (
     <SidebarContainer
-      initial={{ x: -280 }}
-      animate={{ x: 0 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ x: -300, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
     >
       <SidebarHeader>
-        <SidebarTitle>Barney</SidebarTitle>
+        <SidebarTitle>Varanasi</SidebarTitle>
       </SidebarHeader>
 
       <SidebarNav>
         <NavSection>
-          <NavSectionTitle>Navigate</NavSectionTitle>
+          <NavSectionTitle>Command</NavSectionTitle>
           <NavItem
             active={activeNav === 'chat'}
             onClick={() => setActiveNav('chat')}
-            whileHover={{ x: 4 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ x: 6 }}
+            whileTap={{ scale: 0.96 }}
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M2 4h12v8H10l-4 4V4z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+              <path d="M2 4h12v8H10l-4 4V4z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
             </svg>
-            Chat
+            Cinema
           </NavItem>
           <NavItem
             active={activeNav === 'agents'}
             onClick={() => setActiveNav('agents')}
-            whileHover={{ x: 4 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ x: 6 }}
+            whileTap={{ scale: 0.96 }}
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.8" />
+              <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
             </svg>
-            Agents
+            Cognition
           </NavItem>
           <NavItem
             active={activeNav === 'memory'}
             onClick={() => setActiveNav('memory')}
-            whileHover={{ x: 4 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ x: 6 }}
+            whileTap={{ scale: 0.96 }}
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 2L2 5v6l6 3 6-3V5L8 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-              <path d="M8 2v10M2 5l6 3M14 5l-6 3" stroke="currentColor" strokeWidth="1.5" />
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2L2 5v6l6 3 6-3V5L8 2z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+              <path d="M8 2v10M2 5l6 3M14 5l-6 3" stroke="currentColor" strokeWidth="1.8" />
             </svg>
-            Memory
-          </NavItem>
-          <NavItem
-            active={activeNav === 'governance'}
-            onClick={() => setActiveNav('governance')}
-            whileHover={{ x: 4 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 1l2 4h4l-3 3 1 5-4-2-4 2 1-5-3-3h4l2-4z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-            </svg>
-            Governance
+            Vault
           </NavItem>
         </NavSection>
 
         <NavSection>
-          <NavSectionTitle>History</NavSectionTitle>
+          <NavSectionTitle>Reels</NavSectionTitle>
           <HistoryItem
-            whileHover={{ x: 4 }}
+            whileHover={{ x: 6 }}
             whileTap={{ scale: 0.98 }}
           >
-            <p>Research into quantum computing applications...</p>
+            <p>Quantum Synthesis Phase II</p>
           </HistoryItem>
           <HistoryItem
-            whileHover={{ x: 4 }}
+            whileHover={{ x: 6 }}
             whileTap={{ scale: 0.98 }}
           >
-            <p>Compare machine learning frameworks...</p>
+            <p>Neural Pattern Audit</p>
           </HistoryItem>
           <HistoryItem
-            whileHover={{ x: 4 }}
+            whileHover={{ x: 6 }}
             whileTap={{ scale: 0.98 }}
           >
-            <p>Analyze blockchain consensus mechanisms...</p>
+            <p>Blockchain Forensics...</p>
           </HistoryItem>
         </NavSection>
       </SidebarNav>
 
       <AgentStatus>
         <StatusDot />
-        <span style={{ fontSize: '12px', color: '#a89f8f' }}>Agent Active</span>
+        <span style={{ fontSize: '11px', fontWeight: 600, color: '$amberWarm', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+          Engine Live
+        </span>
       </AgentStatus>
     </SidebarContainer>
   );

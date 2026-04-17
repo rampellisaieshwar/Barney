@@ -12,34 +12,39 @@ export const {
 } = createStitches({
   theme: {
     colors: {
-      // Varanasi Cinematic Palette
-      backgroundDeep: '#0a0908',
-      backgroundMid: '#1a1612',
-      backgroundSurface: '#252220',
-
-      // Atmospheric lighting
-      amberWarm: '#d4a574',
-      amberGlow: '#e8c49a',
-      copper: '#b87333',
+      // Varanasi Cinematic Palette (Coal & Fire)
+      backgroundDeep: '#050404',        // Absolute depth
+      backgroundMid: '#0d0c0b',         // Sub-surface
+      backgroundSurface: '#161412',     // Overlay depth
+      
+      // Atmospheric firelight
+      amberWarm: '#d4a574',             // Classic amber
+      amberGlow: '#f0c68e',             // Highlight shine
+      amberFire: '#ff8c00',             // Core flame
+      copper: '#b87333',                // Industrial copper
+      copperGlow: 'rgba(184, 115, 51, 0.4)', // Border bloom
       bronze: '#8b6914',
-
-      // High contrast accents
-      crimsonDeep: '#8b1538',
-      crimson: '#c41e3a',
-
-      // Text hierarchy
+      
+      // Cinematic shadow & contrast accents
+      coalDeep: '#121212',
+      crimsonDeep: '#5e0d25',           // Receded blood
+      crimson: '#a11832',               // Active fire
+      
+      // Text hierarchy (Parchment & Warmth)
       textPrimary: '#f5f0e8',
       textSecondary: '#a89f8f',
-      textMuted: '#6b635a',
-
-      // Glassmorphism
-      glassBackground: 'rgba(20, 18, 15, 0.7)',
-      glassBorder: 'rgba(212, 165, 116, 0.15)',
-      glassHighlight: 'rgba(255, 255, 255, 0.05)',
-
-      // Status
+      textMuted: '#5c544d',
+      
+      // Glassmorphism (Varanasi Pane)
+      glassBackground: 'rgba(10, 9, 8, 0.65)',
+      glassBorder: 'rgba(212, 165, 116, 0.12)',
+      glassHighlight: 'rgba(255, 255, 255, 0.03)',
+      glassShadow: 'rgba(0, 0, 0, 0.5)',
+      
+      // Status (Jewel Tones)
       success: '#4ade80',
       running: '#38bdf8',
+      variantHighlight: 'rgba(56, 189, 248, 0.15)',
       warning: '#fbbf24',
       error: '#f87171',
     },

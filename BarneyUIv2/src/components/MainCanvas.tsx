@@ -1,129 +1,136 @@
+import React, { useRef, useEffect, useState } from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { styled } from '../styles/theme';
-import { motion, useScroll, useTransform, useSpring, MotionValue } from 'framer-motion';
-import { useRef } from 'react';
 
-const CanvasContainer = styled('div', {
+const CanvasWrapper = styled('div', {
   position: 'fixed',
   inset: 0,
-  overflow: 'hidden',
+  zIndex: 0,
   background: '$backgroundDeep',
-  perspective: '1000px',
+  overflow: 'hidden',
+  perspective: '2000px',
 });
 
-const ParallaxLayer = styled(motion.div, {
+const StyledCanvas = styled(motion.canvas, {
   position: 'absolute',
-  width: '100%',
-  height: '100%',
+  width: '110% !important',
+  height: '110% !important',
+  top: '-5%',
+  left: '-5%',
+  objectFit: 'cover',
   willChange: 'transform',
 });
 
-const BackgroundLayer = styled(ParallaxLayer, {
-  background: `
-    radial-gradient(ellipse at 20% 80%, rgba(139, 21, 56, 0.4) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(184, 115, 51, 0.3) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(26, 22, 18, 0.95) 0%, $backgroundDeep 100%)
-  `,
-});
-
-const MidgroundLayer = styled(ParallaxLayer, {
-  '&::before': {
-    content: '',
-    position: 'absolute',
-    inset: 0,
-    background: `
-      radial-gradient(circle at 30% 70%, rgba(212, 165, 116, 0.08) 0%, transparent 40%),
-      radial-gradient(circle at 70% 30%, rgba(232, 196, 154, 0.05) 0%, transparent 30%)
-    `,
-  },
-});
-
-const ForegroundLayer = styled(ParallaxLayer, {
-  pointerEvents: 'none',
-  '&::after': {
-    content: '',
-    position: 'absolute',
-    inset: 0,
-    background: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")',
-    opacity: 0.03,
-    mixBlendMode: 'overlay',
-  },
-});
-
-const DepthLine = styled(motion.div, {
+const DepthOverlay = styled('div', {
   position: 'absolute',
-  left: 0,
-  right: 0,
-  height: '1px',
-  background: 'linear-gradient(90deg, transparent, $glassBorder, transparent)',
-  opacity: 0.3,
+  inset: 0,
+  background: `radial-gradient(circle at 50% 50%, transparent 20%, rgba(5, 4, 4, 0.4) 100%)`,
+  pointerEvents: 'none',
 });
 
-interface LayerConfig {
-  speed: number;
-  rotation?: { x: number; y: number };
-  scale?: number;
+const Stage = styled('div', {
+  position: 'relative',
+  width: '100%',
+  height: '100%',
+  zIndex: 1,
+  transformStyle: 'preserve-3d',
+});
+
+interface MainCanvasProps {
+  children?: React.ReactNode;
+  frameCount?: number;
+  basePath?: string;
 }
 
-function ParallaxDepthLayer({
+export function MainCanvas({ 
   children,
-  depth,
-  mouseX,
-  mouseY,
-}: {
-  children: React.ReactNode;
-  depth: number;
-  mouseX: MotionValue<number>;
-  mouseY: MotionValue<number>;
-}) {
-  const config: LayerConfig = {
-    speed: 0.02 * depth,
-    rotation: { x: 0.02 * depth, y: 0.02 * depth },
-  };
+  frameCount = 60, 
+  basePath = '/assets/BarneyUIv2/backgrounds/varanasi-sequence/frame_' 
+}: MainCanvasProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [images, setImages] = useState<HTMLImageElement[]>([]);
+  const { scrollYProgress } = useScroll();
 
-  const moveX = useTransform(mouseX, [0, 1], [-30 * depth, 30 * depth]);
-  const moveY = useTransform(mouseY, [0, 1], [-20 * depth, 20 * depth]);
-  const rotateX = useTransform(mouseY, [0, 1], [-config.rotation!.x * 100, config.rotation!.x * 100]);
-  const rotateY = useTransform(mouseX, [0, 1], [-config.rotation!.y * 100, config.rotation!.y * 100]);
+  // Mouse position for parallax tilt
+  const mouseX = useSpring(0, { stiffness: 50, damping: 20 });
+  const mouseY = useSpring(0, { stiffness: 50, damping: 20 });
+
+  // Map scroll to frame index
+  const frameIndex = useTransform(scrollYProgress, [0, 1], [0, frameCount - 1]);
+
+  // Map mouse movement to subtle 3D tilt
+  const rotateX = useTransform(mouseY, [-0.5, 0.5], [5, -5]);
+  const rotateY = useTransform(mouseX, [-0.5, 0.5], [-5, 5]);
+
+  useEffect(() => {
+    // Preload images
+    const loadedImages: HTMLImageElement[] = [];
+    let loadedCount = 0;
+
+    for (let i = 0; i < frameCount; i++) {
+        const img = new Image();
+        img.src = `${basePath}${i.toString().padStart(4, '0')}.jpg`;
+        img.onload = () => {
+          loadedCount++;
+          if (loadedCount === frameCount) {
+             setImages(loadedImages);
+          }
+        };
+        img.onerror = () => {
+           loadedCount++;
+        };
+        loadedImages[i] = img;
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX.set((e.clientX / window.innerWidth) - 0.5);
+      mouseY.set((e.clientY / window.innerHeight) - 0.5);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [frameCount, basePath, mouseX, mouseY]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || images.length === 0) return;
+
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    const render = () => {
+      const index = Math.floor(frameIndex.get());
+      const image = images[index];
+      if (image && image.complete) {
+        canvas.width = window.innerWidth * window.devicePixelRatio;
+        canvas.height = window.innerHeight * window.devicePixelRatio;
+        
+        const scale = Math.max(canvas.width / image.width, canvas.height / image.height);
+        const x = (canvas.width / 2) - (image.width / 2) * scale;
+        const y = (canvas.height / 2) - (image.height / 2) * scale;
+        
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, x, y, image.width * scale, image.height * scale);
+      }
+      requestAnimationFrame(render);
+    };
+
+    const animFrame = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(animFrame);
+  }, [images, frameIndex]);
 
   return (
-    <ParallaxLayer
-      style={{
-        x: moveX,
-        y: moveY,
-        rotateX,
-        rotateY,
-      }}
-    >
-      {children}
-    </ParallaxLayer>
-  );
-}
-
-export function MainCanvas({ children }: { children: React.ReactNode }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollY } = useScroll();
-
-  const smoothScrollY = useSpring(scrollY, { stiffness: 100, damping: 30 });
-
-  const mouseX = useTransform(smoothScrollY, [0, 1000], [0.5, 0.5]);
-  const mouseY = useTransform(smoothScrollY, [0, 1000], [0.5, 0.5]);
-
-  return (
-    <CanvasContainer ref={containerRef}>
-      <BackgroundLayer />
-      <MidgroundLayer />
-      <ForegroundLayer />
-
-      <DepthLine
-        style={{ top: '15%', scaleY: useTransform(smoothScrollY, [0, 500], [0, 2]) }}
+    <CanvasWrapper>
+      <StyledCanvas
+        ref={canvasRef}
+        style={{
+          rotateX,
+          rotateY,
+          scale: 1.05,
+        }}
       />
-      <DepthLine
-        style={{ top: '85%', scaleY: useTransform(smoothScrollY, [0, 500], [0, 1.5]) }}
-      />
-
-      <ParallaxDepthLayer depth={1} mouseX={mouseX} mouseY={mouseY}>
-        {children}
-      </ParallaxDepthLayer>
-    </CanvasContainer>
+      <DepthOverlay />
+      <Stage>{children}</Stage>
+    </CanvasWrapper>
   );
 }
