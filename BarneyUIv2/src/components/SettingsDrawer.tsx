@@ -1,87 +1,98 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { styled } from '../styles/theme';
+import { useState } from 'react';
 
-const DrawerOverlay = styled(motion.div, {
+const SettingsContainer = styled(motion.aside, {
   position: 'fixed',
-  inset: 0,
-  background: 'rgba(0, 0, 0, 0.7)', // Slightly darker for better focus
-  backdropFilter: 'blur(12px)',
-  zIndex: 10000,
-});
-
-const DrawerContent = styled(motion.div, {
-  position: 'fixed',
-  left: '50%',
-  top: '50%',
-  width: '450px',
-  maxHeight: '85vh',
-  overflowY: 'auto',
+  right: '$4',
+  top: '$6',
+  bottom: '$6',
+  width: '420px',
   background: 'rgba(10, 9, 8, 0.4)',
   backdropFilter: 'blur(30px) saturate(150%)',
   border: '1px solid rgba(255, 255, 255, 0.1)',
-  zIndex: 10001,
-  padding: '$10 $8',
-  borderRadius: '32px',
+  borderRadius: '24px',
   display: 'flex',
   flexDirection: 'column',
-  gap: '$8',
-  boxShadow: '0 50px 100px rgba(0, 0, 0, 0.9)',
+  zIndex: 1000,
+  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
   transformStyle: 'preserve-3d',
-  
+  overflow: 'hidden',
+
   '&::-webkit-scrollbar': {
     width: '0px',
   },
 });
 
+const HoverHandle = styled(motion.div, {
+  position: 'fixed',
+  right: 0,
+  top: 0,
+  bottom: 0,
+  width: '24px',
+  zIndex: 999,
+});
+
 const DrawerHeader = styled('div', {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '$2',
-  marginBottom: '$4',
-  transform: 'translateZ(20px)',
+  padding: '$8 $8',
+  borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+  transform: 'translateZ(15px)',
 });
 
 const Title = styled('h2', {
   fontFamily: '$display',
-  fontSize: '$xl',
+  fontSize: '$lg',
   fontWeight: 700,
   color: '$textPrimary',
   letterSpacing: '-0.04em',
+  textTransform: 'uppercase',
 });
 
 const Description = styled('p', {
-  fontSize: '$sm',
-  color: '$textSecondary',
+  fontSize: '10px',
+  fontWeight: 700,
+  textTransform: 'uppercase',
+  letterSpacing: '0.15em',
+  color: '$amberWarm',
   opacity: 0.8,
+  marginBottom: '$1',
 });
 
 const SettingGroup = styled('div', {
+  padding: '$6 $8',
   display: 'flex',
   flexDirection: 'column',
-  gap: '$4',
+  gap: '$6',
+  flex: 1,
+  overflowY: 'auto',
+  '&::-webkit-scrollbar': {
+    width: '0px',
+  },
 });
 
 const GroupLabel = styled('label', {
-  fontSize: '$xs',
+  fontSize: '11px',
   fontWeight: 700,
   textTransform: 'uppercase',
   letterSpacing: '0.1em',
-  color: '$amberWarm',
+  color: '$textMuted',
+  marginBottom: '$1',
 });
 
 const SettingItem = styled('div', {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  padding: '$4',
+  padding: '$4 $5',
   borderRadius: '$xl',
   background: 'rgba(255, 255, 255, 0.03)',
-  border: '1px solid $glassBorder',
+  border: '1px solid rgba(255, 255, 255, 0.05)',
   transition: '$medium',
 
   '&:hover': {
-    background: 'rgba(255, 255, 255, 0.05)',
+    background: 'rgba(255, 255, 255, 0.06)',
     borderColor: '$amberWarm',
+    transform: 'translateZ(5px)',
   },
 });
 
@@ -93,7 +104,7 @@ const Control = styled('div', {
 const Button = styled('button', {
   padding: '$2 $4',
   borderRadius: '$full',
-  border: '1px solid $glassBorder',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
   background: 'transparent',
   color: '$textPrimary',
   fontSize: '$xs',
@@ -104,6 +115,7 @@ const Button = styled('button', {
   '&:hover': {
     background: '$amberWarm',
     color: '$backgroundDeep',
+    borderColor: '$amberWarm',
   },
 
   variants: {
@@ -117,70 +129,97 @@ const Button = styled('button', {
   },
 });
 
-interface SettingsDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+export function SettingsDrawer() {
+  const [isExpanded, setIsExpanded] = useState(false);
 
-export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <DrawerOverlay
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-          />
-          <DrawerContent
-            initial={{ opacity: 0, scale: 0.95, x: '-50%', y: '-48%' }}
-            animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
-            exit={{ opacity: 0, scale: 0.95, x: '-50%', y: '-48%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+    <>
+      <HoverHandle onMouseEnter={() => setIsExpanded(true)} />
+      <SettingsContainer
+        initial={{ width: '12px', opacity: 0.2, x: 10 }}
+        animate={{ 
+          width: isExpanded ? '400px' : '12px',
+          opacity: 1,
+          x: 0
+        }}
+        onMouseLeave={() => setIsExpanded(false)}
+        transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+      >
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}
+            >
+              <DrawerHeader>
+                <Description>Engine Configuration</Description>
+                <Title>Varanasi Settings</Title>
+              </DrawerHeader>
+
+              <SettingGroup>
+                <div>
+                  <GroupLabel>Atmosphere</GroupLabel>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '$3', marginTop: '$2' }}>
+                    <SettingItem>
+                      <span>Cinematic Bloom</span>
+                      <Control>
+                        <Button active>On</Button>
+                        <Button>Off</Button>
+                      </Control>
+                    </SettingItem>
+                    <SettingItem>
+                      <span>Rendering Quality</span>
+                      <Control>
+                        <Button>4K</Button>
+                        <Button active>HD</Button>
+                      </Control>
+                    </SettingItem>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '$4' }}>
+                  <GroupLabel>Intelligence</GroupLabel>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '$3', marginTop: '$2' }}>
+                    <SettingItem>
+                      <span>Reasoning Depth</span>
+                      <Control>
+                        <Button>Fast</Button>
+                        <Button active>Deep</Button>
+                      </Control>
+                    </SettingItem>
+                  </div>
+                </div>
+              </SettingGroup>
+
+              <div style={{ padding: '$8', marginTop: 'auto' }}>
+                <Button 
+                  style={{ width: '100%', padding: '$4' }} 
+                  onClick={() => setIsExpanded(false)}
+                >
+                  Apply & Synchronize
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {!isExpanded && (
+          <motion.div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
           >
-            <DrawerHeader>
-              <Description>Engine Configuration</Description>
-              <Title>Varanasi Settings</Title>
-            </DrawerHeader>
-
-            <SettingGroup>
-              <GroupLabel>Atmosphere</GroupLabel>
-              <SettingItem>
-                <span>Cinematic Bloom</span>
-                <Control>
-                  <Button active>On</Button>
-                  <Button>Off</Button>
-                </Control>
-              </SettingItem>
-              <SettingItem>
-                <span>Rendering Quality</span>
-                <Control>
-                  <Button>4K</Button>
-                  <Button active>HD</Button>
-                </Control>
-              </SettingItem>
-            </SettingGroup>
-
-            <SettingGroup>
-              <GroupLabel>Intelligence</GroupLabel>
-              <SettingItem>
-                <span>Reasoning Depth</span>
-                <Control>
-                  <Button>Fast</Button>
-                  <Button active>Deep</Button>
-                </Control>
-              </SettingItem>
-            </SettingGroup>
-
-            <div style={{ marginTop: 'auto' }}>
-              <Button style={{ width: '100%', padding: '$4' }} onClick={onClose}>
-                Confirm Configuration
-              </Button>
-            </div>
-          </DrawerContent>
-        </>
-      )}
-    </AnimatePresence>
+            <div style={{ width: '2px', height: '100px', background: 'rgba(212, 165, 116, 0.3)', borderRadius: '2px' }} />
+          </motion.div>
+        )}
+      </SettingsContainer>
+    </>
   );
 }

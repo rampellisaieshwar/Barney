@@ -298,32 +298,13 @@ const ThinkingIndicator = styled(motion.div, {
   fontWeight: 500,
 });
 
-const SettingsButton = styled(motion.button, {
-  marginLeft: 'auto',
-  padding: '$2',
-  borderRadius: '$full',
-  border: '1px solid $glassBorder',
-  background: 'transparent',
-  color: '$textMuted',
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  transition: '$fast',
-
-  '&:hover': {
-    color: '$amberWarm',
-    borderColor: '$amberWarm',
-    background: 'rgba(212, 165, 116, 0.05)',
-  },
-});
+// SettingsButton removed in favor of edge-dock
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [steps, setSteps] = useState<PlanStep[]>([]);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -375,16 +356,6 @@ export function ChatInterface() {
           <h1>Varanasi</h1>
           <p>Cinematic Intelligence Engine</p>
         </HeaderText>
-        <SettingsButton
-          onClick={() => setIsSettingsOpen(true)}
-          whileHover={{ rotate: 90 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M10 13C11.6569 13 13 11.6569 13 10C13 8.34315 11.6569 7 10 7C8.34315 7 7 8.34315 7 10C7 11.6569 8.34315 13 10 13Z" stroke="currentColor" strokeWidth="1.5" />
-            <path d="M10 2V4M10 16V18M18 10H16M4 10H2M15.65 4.35L14.24 5.76M5.76 14.24L4.35 15.65M15.65 15.65L14.24 14.24M5.76 5.76L4.35 4.35" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        </SettingsButton>
       </ChatHeader>
 
       <MessagesContainer>
@@ -482,7 +453,7 @@ export function ChatInterface() {
         </InputWrapper>
       </InputArea>
       
-      <SettingsDrawer isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <SettingsDrawer />
     </ChatWrapper>
   );
 }
