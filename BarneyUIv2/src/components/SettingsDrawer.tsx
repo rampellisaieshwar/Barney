@@ -4,27 +4,26 @@ import { styled } from '../styles/theme';
 const DrawerOverlay = styled(motion.div, {
   position: 'fixed',
   inset: 0,
-  background: 'rgba(0, 0, 0, 0.4)',
-  backdropFilter: 'blur(10px)',
-  zIndex: 1000,
+  background: 'rgba(0, 0, 0, 0.6)',
+  backdropFilter: 'blur(15px)',
+  zIndex: 10000,
 });
 
 const DrawerContent = styled(motion.div, {
   position: 'fixed',
   left: '50%',
   top: '50%',
-  transform: 'translate(-50%, -50%)',
   width: '450px',
   background: 'rgba(10, 9, 8, 0.4)',
   backdropFilter: 'blur(25px) saturate(150%)',
   border: '1px solid rgba(255, 255, 255, 0.1)',
-  zIndex: 1001,
+  zIndex: 10001,
   padding: '$10 $8',
   borderRadius: '32px',
   display: 'flex',
   flexDirection: 'column',
   gap: '$8',
-  boxShadow: '0 30px 60px rgba(0, 0, 0, 0.6)',
+  boxShadow: '0 40px 100px rgba(0, 0, 0, 0.8)',
   transformStyle: 'preserve-3d',
 });
 
@@ -129,9 +128,9 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
             onClick={onClose}
           />
           <DrawerContent
-            initial={{ x: '100%', rotateY: 20, translateZ: 100 }}
-            animate={{ x: 0, rotateY: 0, translateZ: 0 }}
-            exit={{ x: '100%', rotateY: 20, translateZ: 100 }}
+            initial={{ opacity: 0, scale: 0.8, x: '-50%', y: '-40%', translateZ: 100 }}
+            animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%', translateZ: 400 }}
+            exit={{ opacity: 0, scale: 0.8, x: '-50%', y: '-40%', translateZ: 100 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
           >
             <DrawerHeader>
